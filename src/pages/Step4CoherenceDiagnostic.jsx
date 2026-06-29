@@ -34,8 +34,7 @@ export default function Step4CoherenceDiagnostic() {
   }
 
   const canAdvance =
-    diagnostic.every((d) => d.gap.trim() !== "" && (d.barriers.length > 0 || d.barrierNotes.trim() !== "")) &&
-    journey.step4ReflectionResonance !== "";
+    diagnostic.every((d) => d.gap.trim() !== "" && (d.barriers.length > 0 || d.barrierNotes.trim() !== ""));
 
   return (
     <div style={styles.page}>

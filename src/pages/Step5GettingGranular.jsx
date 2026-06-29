@@ -24,7 +24,7 @@ export default function Step5GettingGranular() {
   }
 
   const canAdvanceCommit = commitments.every((c) => c.items[0].trim() !== "");
-  const canAdvanceLookback = journey.step5ReflectionResonance !== "";
+  const canAdvanceLookback = true;
   const feeling = journey.northStarFeeling || "the feeling you named";
 
   if (phase === "lookback") {
