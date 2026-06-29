@@ -7,18 +7,34 @@ export function JourneyProvider({ children }) {
     // Step 1
     quote1Resonance: "",
     quote2Resonance: "",
+    quote3Resonance: "",
+    quote4Resonance: "",
+    reflectionResonance: "",   // "yes" | "no"
+    reflectionNote: "",        // optional text when "no"
+
     // Step 2
     feelingWords: "",
     northStarFeeling: "",
-    // Step 3 — array of domain name strings, 2–4
-    domains: ["", ""],
-    // Step 4 — array of { gap, barrier } objects, one per domain
+
+    // Step 3
+    allDomains: ["", ""],      // everything the user generated
+    domains: [],               // kept set after optional narrowing
+
+    // Step 4 — array of { gap, barriers: string[], barrierNotes } per domain
     coherenceDiagnostic: [],
-    // Step 5 — array of { commitments: string[] } objects, one per domain
+    step4ReflectionResonance: "",
+    step4ReflectionNote: "",
+
+    // Step 5 — array of { items: string[] } per domain
     commitments: [],
+    step5ReflectionResonance: "",
+    step5ReflectionNote: "",
+
     // Step 7
-    releasing: "",
+    whatsClearer: "",
+    lookingForwardTo: "",
     accountability: "",
+    communityInterest: "",
   });
 
   function update(patch) {
