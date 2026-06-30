@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
+import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
 
@@ -55,9 +56,22 @@ export default function Step1Provocation() {
 
   if (phase === "reflection") {
     return (
-      <div style={styles.page}>
+      <Shell
+        title="The Provocation"
+        footer={
+          <>
+            <button onClick={() => setPhase("quotes")} style={styles.back}>Back</button>
+            <button
+              onClick={() => navigate("/step/2")}
+              disabled={!canAdvanceReflection}
+              style={{ ...styles.next, ...(!canAdvanceReflection ? styles.nextDisabled : {}) }}
+            >
+              Continue
+            </button>
+          </>
+        }
+      >
         <StepNav current={1} />
-        <h2 style={styles.stepTitle}>The Provocation</h2>
 
         <div style={styles.placeholder}>
           <span style={styles.placeholderLabel}>AI reflection placeholder</span>
@@ -74,25 +88,24 @@ export default function Step1Provocation() {
           onResonance={(val) => update({ reflectionResonance: val })}
           onNote={(val) => update({ reflectionNote: val })}
         />
-
-        <div style={styles.row}>
-          <button onClick={() => setPhase("quotes")} style={styles.back}>Back</button>
-          <button
-            onClick={() => navigate("/step/2")}
-            disabled={!canAdvanceReflection}
-            style={{ ...styles.next, ...(!canAdvanceReflection ? styles.nextDisabled : {}) }}
-          >
-            Continue
-          </button>
-        </div>
-      </div>
+      </Shell>
     );
   }
 
   return (
-    <div style={styles.page}>
+    <Shell
+      title="The Provocation"
+      footer={
+        <button
+          onClick={handleNext}
+          disabled={!canAdvanceQuote}
+          style={{ ...styles.next, ...(!canAdvanceQuote ? styles.nextDisabled : {}) }}
+        >
+          {currentQuote < QUOTES.length - 1 ? "Next" : "See reflection"}
+        </button>
+      }
+    >
       <StepNav current={1} />
-      <h2 style={styles.stepTitle}>The Provocation</h2>
       <p style={styles.instruction}>Read this slowly. Then tell us how much it resonates.</p>
 
       <blockquote style={styles.quote}>
@@ -118,50 +131,41 @@ export default function Step1Provocation() {
       <div style={styles.quoteCount}>
         {currentQuote + 1} of {QUOTES.length}
       </div>
-
-      <button
-        onClick={handleNext}
-        disabled={!canAdvanceQuote}
-        style={{ ...styles.next, ...(!canAdvanceQuote ? styles.nextDisabled : {}) }}
-      >
-        {currentQuote < QUOTES.length - 1 ? "Next" : "See reflection"}
-      </button>
-    </div>
+    </Shell>
   );
 }
 
 const styles = {
-  page: { maxWidth: "640px", margin: "0 auto", padding: "2rem 1rem" },
-  stepTitle: { fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem" },
-  instruction: { color: "#555", marginBottom: "2rem" },
+  instruction: { color: "var(--color-text)", marginBottom: "2rem", lineHeight: "1.6" },
   quote: {
-    borderLeft: "3px solid #2d6a4f",
+    borderLeft: "3px solid var(--color-accent)",
     paddingLeft: "1.25rem",
     margin: "0 0 2rem",
   },
   quoteText: {
+    fontFamily: "var(--font-serif)",
     fontStyle: "italic",
-    fontSize: "1.15rem",
-    lineHeight: "1.7",
-    color: "#1a1a1a",
+    fontSize: "1.25rem",
+    lineHeight: "1.6",
+    color: "var(--color-text)",
     margin: "0 0 0.5rem",
   },
-  attribution: { fontSize: "0.85rem", color: "#666" },
+  attribution: { fontSize: "0.85rem", color: "var(--color-text)", opacity: 0.65 },
   options: { display: "flex", gap: "0.75rem", flexWrap: "wrap", marginBottom: "1rem" },
   option: {
     padding: "0.6rem 1.2rem",
-    border: "1.5px solid #2d6a4f",
+    border: "1.5px solid var(--color-accent)",
     borderRadius: "4px",
-    background: "white",
+    background: "var(--color-paper)",
     cursor: "pointer",
     fontSize: "0.95rem",
-    color: "#2d6a4f",
+    color: "var(--color-accent-deep)",
   },
-  optionSelected: { background: "#2d6a4f", color: "white" },
-  quoteCount: { fontSize: "0.8rem", color: "#999", marginBottom: "2rem" },
+  optionSelected: { background: "var(--color-accent)", color: "#fff" },
+  quoteCount: { fontSize: "0.8rem", color: "var(--color-text)", opacity: 0.5, marginBottom: "1rem" },
   placeholder: {
-    background: "#f5f5f5",
-    border: "1.5px dashed #bbb",
+    background: "rgba(44,35,29,0.04)",
+    border: "1.5px dashed rgba(44,35,29,0.3)",
     borderRadius: "6px",
     padding: "1.25rem",
     marginBottom: "0.5rem",
@@ -171,18 +175,18 @@ const styles = {
     fontSize: "0.7rem",
     textTransform: "uppercase",
     letterSpacing: "0.08em",
-    color: "#999",
+    color: "var(--color-text)",
+    opacity: 0.5,
     marginBottom: "0.5rem",
   },
-  placeholderText: { color: "#888", fontStyle: "italic", margin: 0, lineHeight: "1.6" },
-  row: { display: "flex", gap: "1rem", marginTop: "1.5rem" },
+  placeholderText: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", margin: 0, lineHeight: "1.6" },
   back: {
-    padding: "0.75rem 1.5rem", background: "white", color: "#2d6a4f",
-    border: "1.5px solid #2d6a4f", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   next: {
-    padding: "0.75rem 2rem", background: "#2d6a4f", color: "white",
+    padding: "0.75rem 2rem", background: "var(--color-accent)", color: "#fff",
     border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
-  nextDisabled: { background: "#aaa", cursor: "not-allowed" },
+  nextDisabled: { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" },
 };

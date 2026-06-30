@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
+import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 
 export default function Step6ClarityDocument() {
@@ -13,9 +14,18 @@ export default function Step6ClarityDocument() {
   }
 
   return (
-    <div style={styles.page}>
+    <Shell
+      title="Your Clarity Document"
+      accent="plum"
+      footer={
+        <>
+          <button onClick={() => navigate("/step/5")} style={styles.back}>Back</button>
+          <button onClick={handlePrint} style={styles.print}>Print / Save as PDF</button>
+          <button onClick={() => navigate("/step/7")} style={styles.next}>Continue</button>
+        </>
+      }
+    >
       <StepNav current={6} />
-      <h2 style={styles.stepTitle}>Your Clarity Document</h2>
       <p style={styles.instruction}>
         Everything you've named, in one place. Save it, print it, return to it.
       </p>
@@ -33,10 +43,14 @@ export default function Step6ClarityDocument() {
             <div key={i} style={styles.domainSection}>
               <h3 style={styles.domainTitle}>{domain}</h3>
               <div style={styles.diagBlock}>
-                <div style={styles.diagLabel}>The gap</div>
+                <div style={styles.diagLabel}>What it looks like now</div>
                 <p style={styles.diagText}>{diag.gap || "—"}</p>
                 <div style={styles.diagLabel}>What's been standing in the way</div>
-                <p style={styles.diagText}>{diag.barrier || "—"}</p>
+                <p style={styles.diagText}>
+                  {(diag.barriers && diag.barriers.length > 0 ? diag.barriers.join(", ") : "") ||
+                    diag.barrierNotes ||
+                    "—"}
+                </p>
               </div>
               {comms.length > 0 && (
                 <div style={styles.commitBlock}>
@@ -49,55 +63,38 @@ export default function Step6ClarityDocument() {
             </div>
           );
         })}
-
-        {journey.releasing && (
-          <div style={styles.closing}>
-            <div style={styles.diagLabel}>What I'm gently releasing this year</div>
-            <p style={styles.diagText}>{journey.releasing}</p>
-          </div>
-        )}
       </div>
-
-      <div style={styles.row}>
-        <button onClick={() => navigate("/step/5")} style={styles.back}>Back</button>
-        <button onClick={handlePrint} style={styles.print}>Print / Save as PDF</button>
-        <button onClick={() => navigate("/step/7")} style={styles.next}>Continue</button>
-      </div>
-    </div>
+    </Shell>
   );
 }
 
 const styles = {
-  page: { maxWidth: "700px", margin: "0 auto", padding: "2rem 1rem" },
-  stepTitle: { fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem" },
-  instruction: { color: "#555", marginBottom: "1.5rem" },
+  instruction: { color: "var(--color-text)", opacity: 0.75, marginBottom: "1.5rem", lineHeight: "1.6" },
   doc: {
-    border: "1px solid #d8e8df", borderRadius: "8px",
-    padding: "2rem", marginBottom: "2rem", background: "#fafff9",
+    border: "1px solid rgba(94,15,61,0.2)", borderRadius: "8px",
+    padding: "2rem", marginBottom: "0.5rem", background: "rgba(94,15,61,0.04)",
   },
-  northStar: { textAlign: "center", marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: "1px solid #d8e8df" },
-  nsLabel: { fontSize: "0.85rem", color: "#666", marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.05em" },
-  nsWord: { fontSize: "2rem", fontWeight: "700", color: "#2d6a4f" },
-  domainSection: { marginBottom: "1.75rem", paddingBottom: "1.75rem", borderBottom: "1px solid #eee" },
-  domainTitle: { fontSize: "1.15rem", fontWeight: "600", color: "#2d6a4f", marginBottom: "0.75rem" },
+  northStar: { textAlign: "center", marginBottom: "2rem", paddingBottom: "1.5rem", borderBottom: "1px solid rgba(94,15,61,0.2)" },
+  nsLabel: { fontSize: "0.85rem", color: "var(--color-text)", opacity: 0.6, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.05em" },
+  nsWord: { fontFamily: "var(--font-serif)", fontSize: "2.1rem", fontWeight: 600, color: "var(--color-gold)" },
+  domainSection: { marginBottom: "1.75rem", paddingBottom: "1.75rem", borderBottom: "1px solid rgba(94,15,61,0.12)" },
+  domainTitle: { fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: 600, color: "var(--color-plum)", marginBottom: "0.75rem" },
   diagBlock: { marginBottom: "0.75rem" },
-  diagLabel: { fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "#888", marginBottom: "0.2rem" },
-  diagText: { margin: "0 0 0.75rem", color: "#333" },
+  diagLabel: { fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text)", opacity: 0.55, marginBottom: "0.2rem" },
+  diagText: { margin: "0 0 0.75rem", color: "var(--color-text)" },
   commitBlock: {},
-  commitLabel: { fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "#888", marginBottom: "0.4rem" },
-  commitList: { margin: 0, paddingLeft: "1.25rem", color: "#333" },
-  closing: { marginTop: "0.5rem" },
-  row: { display: "flex", gap: "1rem", flexWrap: "wrap" },
+  commitLabel: { fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text)", opacity: 0.55, marginBottom: "0.4rem" },
+  commitList: { margin: 0, paddingLeft: "1.25rem", color: "var(--color-text)" },
   back: {
-    padding: "0.75rem 1.5rem", background: "white", color: "#2d6a4f",
-    border: "1.5px solid #2d6a4f", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",
+    border: "1.5px solid var(--color-plum)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   print: {
-    padding: "0.75rem 1.5rem", background: "white", color: "#2d6a4f",
-    border: "1.5px solid #2d6a4f", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",
+    border: "1.5px solid var(--color-plum)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   next: {
-    padding: "0.75rem 2rem", background: "#2d6a4f", color: "white",
+    padding: "0.75rem 2rem", background: "var(--color-plum)", color: "#fff",
     border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
 };

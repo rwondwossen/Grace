@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
+import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 
 export default function Step2FeelingQuestion() {
@@ -9,12 +10,23 @@ export default function Step2FeelingQuestion() {
   const canAdvance = journey.northStarFeeling.trim() !== "";
 
   return (
-    <div style={styles.page}>
+    <Shell
+      title="The Feeling Question"
+      footer={
+        <>
+          <button onClick={() => navigate("/step/1")} style={styles.back}>Back</button>
+          <button
+            onClick={() => navigate("/step/3")}
+            disabled={!canAdvance}
+            style={{ ...styles.next, ...(canAdvance ? {} : styles.nextDisabled) }}
+          >
+            Continue
+          </button>
+        </>
+      }
+    >
       <StepNav current={2} />
-      <h2 style={styles.stepTitle}>The Feeling Question</h2>
-      <p style={styles.instruction}>
-        One year from now, I want to feel...
-      </p>
+      <p style={styles.instruction}>One year from now, I want to feel...</p>
       <p style={styles.hint}>
         Start by generating as many feeling words as come to mind. Notice what patterns emerge.
         Then land on the one word or phrase that feels most true.
@@ -39,49 +51,35 @@ export default function Step2FeelingQuestion() {
       />
 
       <p style={styles.prompts}>
-        <strong>If you're stuck:</strong> What is the opposite of how you feel on your worst days?
+        If you're stuck: what is the opposite of how you feel on your worst days?
         What would the people who love you most want for you?
       </p>
-
-      <div style={styles.row}>
-        <button onClick={() => navigate("/step/1")} style={styles.back}>Back</button>
-        <button
-          onClick={() => navigate("/step/3")}
-          disabled={!canAdvance}
-          style={{ ...styles.next, ...(canAdvance ? {} : styles.nextDisabled) }}
-        >
-          Continue
-        </button>
-      </div>
-    </div>
+    </Shell>
   );
 }
 
 const styles = {
-  page: { maxWidth: "640px", margin: "0 auto", padding: "2rem 1rem" },
-  stepTitle: { fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.5rem" },
-  instruction: { fontSize: "1.2rem", fontStyle: "italic", color: "#1a1a1a", marginBottom: "0.5rem" },
-  hint: { color: "#555", marginBottom: "1.5rem" },
-  label: { display: "block", fontWeight: "500", marginBottom: "0.4rem" },
+  instruction: { fontFamily: "var(--font-serif)", fontSize: "1.3rem", fontStyle: "italic", color: "var(--color-text)", marginBottom: "0.5rem" },
+  hint: { color: "var(--color-text)", opacity: 0.75, marginBottom: "1.5rem", lineHeight: "1.6" },
+  label: { display: "block", fontWeight: 600, marginBottom: "0.4rem", color: "var(--color-text)" },
   textarea: {
     width: "100%", padding: "0.75rem", fontSize: "1rem",
-    border: "1.5px solid #ccc", borderRadius: "4px",
-    marginBottom: "1.5rem", boxSizing: "border-box", resize: "vertical",
+    border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
+    marginBottom: "1.5rem", boxSizing: "border-box", resize: "vertical", background: "#fff",
   },
   input: {
     width: "100%", padding: "0.75rem", fontSize: "1rem",
-    border: "1.5px solid #ccc", borderRadius: "4px",
-    marginBottom: "1rem", boxSizing: "border-box",
+    border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
+    marginBottom: "1rem", boxSizing: "border-box", background: "#fff",
   },
-  prompts: { color: "#666", fontSize: "0.9rem", marginBottom: "2rem" },
-  row: { display: "flex", gap: "1rem" },
+  prompts: { color: "var(--color-text)", opacity: 0.65, fontSize: "0.9rem", marginBottom: "0.5rem", lineHeight: "1.6" },
   back: {
-    padding: "0.75rem 1.5rem", background: "white", color: "#2d6a4f",
-    border: "1.5px solid #2d6a4f", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   next: {
-    padding: "0.75rem 2rem", background: "#2d6a4f", color: "white",
+    padding: "0.75rem 2rem", background: "var(--color-accent)", color: "#fff",
     border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
-  nextDisabled: { background: "#aaa", cursor: "not-allowed" },
+  nextDisabled: { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" },
 };

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
+import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 
 const EXTRA_EXAMPLES = [
@@ -82,9 +83,18 @@ export default function Step3Buckets() {
   if (phase === "narrow") {
     const filledDomains = allDomains.filter((d) => d.trim() !== "");
     return (
-      <div style={styles.page}>
+      <Shell
+        title="The Buckets"
+        footer={
+          <>
+            <button onClick={() => setPhase("generate")} style={styles.back}>Back</button>
+            <button onClick={handleNarrowContinue} style={styles.next}>
+              Continue with {kept && kept.size > 0 ? kept.size : filledDomains.length}{kept && kept.size === filledDomains.length ? " (all)" : ""}
+            </button>
+          </>
+        }
+      >
         <StepNav current={3} />
-        <h2 style={styles.stepTitle}>The Buckets</h2>
         <div style={styles.narrowBox}>
           <p style={styles.narrowCopy}>
             You've named {filledDomains.length}. You can keep all of them, but part of what pulls us out
@@ -107,20 +117,27 @@ export default function Step3Buckets() {
             ))}
           </div>
         </div>
-        <div style={styles.row}>
-          <button onClick={() => setPhase("generate")} style={styles.back}>Back</button>
-          <button onClick={handleNarrowContinue} style={styles.next}>
-            Continue with {kept && kept.size > 0 ? kept.size : filledDomains.length} {kept && kept.size === filledDomains.length ? "(all)" : ""}
-          </button>
-        </div>
-      </div>
+      </Shell>
     );
   }
 
   return (
-    <div style={styles.page}>
+    <Shell
+      title="The Buckets"
+      footer={
+        <>
+          <button onClick={() => navigate("/step/2")} style={styles.back}>Back</button>
+          <button
+            onClick={handleGenerate}
+            disabled={!canGenerate}
+            style={{ ...styles.next, ...(!canGenerate ? styles.nextDisabled : {}) }}
+          >
+            Continue
+          </button>
+        </>
+      }
+    >
       <StepNav current={3} />
-      <h2 style={styles.stepTitle}>The Buckets</h2>
 
       <p style={styles.question}>
         You can't tend to everything at once, and trying to is part of what pulls us out of feeling{" "}
@@ -175,34 +192,22 @@ export default function Step3Buckets() {
       </div>
 
       <button onClick={addDomain} style={styles.add}>+ Add another area</button>
-
-      <div style={styles.row}>
-        <button onClick={() => navigate("/step/2")} style={styles.back}>Back</button>
-        <button
-          onClick={handleGenerate}
-          disabled={!canGenerate}
-          style={{ ...styles.next, ...(!canGenerate ? styles.nextDisabled : {}) }}
-        >
-          Continue
-        </button>
-      </div>
-    </div>
+    </Shell>
   );
 }
 
 const styles = {
-  page: { maxWidth: "640px", margin: "0 auto", padding: "2rem 1rem" },
-  stepTitle: { fontSize: "1.5rem", fontWeight: "600", marginBottom: "0.75rem" },
-  question: { fontSize: "1.05rem", lineHeight: "1.7", marginBottom: "1.5rem" },
+  question: { fontSize: "1.05rem", lineHeight: "1.7", marginBottom: "1.5rem", color: "var(--color-text)" },
   examples: {
-    background: "#f9fdf9",
-    border: "1px solid #d8e8df",
+    background: "rgba(228,74,36,0.06)",
+    border: "1px solid rgba(228,74,36,0.2)",
     borderRadius: "6px",
     padding: "1rem 1.25rem",
     marginBottom: "1rem",
   },
   exampleItem: {
-    color: "#444",
+    color: "var(--color-text)",
+    opacity: 0.85,
     lineHeight: "1.6",
     margin: "0 0 0.75rem",
     fontSize: "0.95rem",
@@ -210,7 +215,7 @@ const styles = {
   stuckToggle: {
     background: "none",
     border: "none",
-    color: "#2d6a4f",
+    color: "var(--color-accent-deep)",
     cursor: "pointer",
     fontSize: "0.9rem",
     padding: "0",
@@ -218,8 +223,8 @@ const styles = {
     textDecoration: "underline",
   },
   stuckPanel: {
-    background: "#f9fdf9",
-    border: "1px solid #d8e8df",
+    background: "rgba(228,74,36,0.06)",
+    border: "1px solid rgba(228,74,36,0.2)",
     borderRadius: "6px",
     padding: "1rem 1.25rem",
     marginBottom: "1rem",
@@ -230,48 +235,48 @@ const styles = {
     flex: 1,
     padding: "0.65rem 0.75rem",
     fontSize: "1rem",
-    border: "1.5px solid #ccc",
+    border: "1.5px solid rgba(44,35,29,0.25)",
     borderRadius: "4px",
     boxSizing: "border-box",
+    background: "#fff",
   },
-  remove: { background: "none", border: "none", cursor: "pointer", color: "#999", fontSize: "1rem" },
+  remove: { background: "none", border: "none", cursor: "pointer", color: "var(--color-text)", opacity: 0.5, fontSize: "1rem" },
   add: {
     background: "none",
-    border: "1.5px dashed #2d6a4f",
-    color: "#2d6a4f",
+    border: "1.5px dashed var(--color-accent)",
+    color: "var(--color-accent-deep)",
     padding: "0.5rem 1rem",
     borderRadius: "4px",
     cursor: "pointer",
-    marginBottom: "2rem",
+    marginBottom: "0.5rem",
     fontSize: "0.9rem",
     display: "block",
   },
-  row: { display: "flex", gap: "1rem" },
   back: {
-    padding: "0.75rem 1.5rem", background: "white", color: "#2d6a4f",
-    border: "1.5px solid #2d6a4f", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   next: {
-    padding: "0.75rem 2rem", background: "#2d6a4f", color: "white",
+    padding: "0.75rem 2rem", background: "var(--color-accent)", color: "#fff",
     border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
-  nextDisabled: { background: "#aaa", cursor: "not-allowed" },
+  nextDisabled: { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" },
   narrowBox: {
-    background: "#f9fdf9",
-    border: "1px solid #d8e8df",
+    background: "rgba(228,74,36,0.06)",
+    border: "1px solid rgba(228,74,36,0.2)",
     borderRadius: "6px",
     padding: "1.25rem",
-    marginBottom: "1.5rem",
+    marginBottom: "0.5rem",
   },
-  narrowCopy: { lineHeight: "1.7", marginBottom: "1.25rem" },
+  narrowCopy: { lineHeight: "1.7", marginBottom: "1.25rem", color: "var(--color-text)" },
   narrowList: { display: "flex", flexWrap: "wrap", gap: "0.6rem" },
   narrowChip: {
     padding: "0.5rem 1rem",
     borderRadius: "4px",
     cursor: "pointer",
     fontSize: "0.95rem",
-    border: "1.5px solid #2d6a4f",
+    border: "1.5px solid var(--color-accent)",
   },
-  narrowChipKept: { background: "#2d6a4f", color: "white" },
-  narrowChipDeselected: { background: "white", color: "#2d6a4f" },
+  narrowChipKept: { background: "var(--color-accent)", color: "#fff" },
+  narrowChipDeselected: { background: "var(--color-paper)", color: "var(--color-accent-deep)" },
 };
