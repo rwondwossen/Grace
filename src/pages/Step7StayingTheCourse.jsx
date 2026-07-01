@@ -51,7 +51,7 @@ export default function Step7StayingTheCourse() {
 
   if (status === "done") {
     return (
-      <Shell title="You're done." accent="plum">
+      <Shell title="You're done.">
         <p style={styles.doneText}>
           Your Clarity Document is saved. Come back to it whenever you need a reminder of what
           you named and why it matters.
@@ -67,7 +67,6 @@ export default function Step7StayingTheCourse() {
     return (
       <Shell
         title="How it feels now"
-        accent="plum"
         footer={
           <>
             <button onClick={() => navigate("/step/6")} style={styles.back}>Back</button>
@@ -82,7 +81,7 @@ export default function Step7StayingTheCourse() {
         }
       >
         <p style={styles.beatCopy}>
-          You came in wanting to feel <strong style={{ color: "var(--color-plum)", fontFamily: "var(--font-serif)" }}>{feeling}</strong>. You've named where it lives,
+          You came in wanting to feel <strong style={styles.feelingWord}>{feeling}</strong>. You've named where it lives,
           looked honestly at what's in the way, and made your commitments. That's the work most
           people never sit down to do.
         </p>
@@ -112,7 +111,6 @@ export default function Step7StayingTheCourse() {
     return (
       <Shell
         title="When you drift"
-        accent="plum"
         footer={
           <>
             <button onClick={() => setBeat(1)} style={styles.back}>Back</button>
@@ -157,7 +155,6 @@ export default function Step7StayingTheCourse() {
         </label>
         <textarea
           style={styles.textarea}
-          placeholder=""
           value={journey.driftCommitment}
           onChange={(e) => update({ driftCommitment: e.target.value })}
           rows={3}
@@ -169,7 +166,6 @@ export default function Step7StayingTheCourse() {
   return (
     <Shell
       title="You're not doing this alone"
-      accent="plum"
       footer={
         <>
           <button onClick={() => setBeat(2)} style={styles.back}>Back</button>
@@ -230,6 +226,7 @@ export default function Step7StayingTheCourse() {
 
 const styles = {
   beatCopy: { color: "var(--color-text)", opacity: 0.85, lineHeight: "1.7", marginBottom: "0.75rem" },
+  feelingWord: { color: "var(--color-plum)", fontFamily: "var(--font-serif)" },
   label: { display: "block", fontWeight: 600, marginBottom: "0.4rem", color: "var(--color-text)" },
   notesLabel: { display: "block", fontSize: "0.9rem", color: "var(--color-text)", opacity: 0.75, marginBottom: "0.35rem" },
   textarea: {
@@ -245,14 +242,14 @@ const styles = {
   chips: { display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" },
   chip: {
     padding: "0.45rem 1rem",
-    border: "1.5px solid var(--color-plum)",
+    border: "1.5px solid var(--color-accent)",
     borderRadius: "4px",
     background: "var(--color-paper)",
-    color: "var(--color-plum)",
+    color: "var(--color-accent-deep)",
     cursor: "pointer",
     fontSize: "0.9rem",
   },
-  chipSelected: { background: "var(--color-plum)", color: "#fff" },
+  chipSelected: { background: "var(--color-accent)", color: "#fff" },
   boardNote: {
     color: "var(--color-text)",
     opacity: 0.8,
@@ -260,14 +257,14 @@ const styles = {
     marginTop: "1rem",
     marginBottom: "0.5rem",
     padding: "0.75rem 1rem",
-    background: "rgba(94,15,61,0.06)",
+    background: "rgba(228,74,36,0.06)",
     borderRadius: "6px",
     fontSize: "0.95rem",
   },
   error: { color: "#c0392b", marginTop: "1rem" },
   back: {
-    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",
-    border: "1.5px solid var(--color-plum)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   next: {
     padding: "0.75rem 2rem", background: "var(--color-plum)", color: "#fff",

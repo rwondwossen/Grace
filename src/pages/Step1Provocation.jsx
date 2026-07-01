@@ -185,7 +185,7 @@ const styles = {
     border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   next: {
-    padding: "0.75rem 2rem", background: "var(--color-accent)", color: "#fff",
+    padding: "0.75rem 2rem", background: "var(--color-plum)", color: "#fff",
     border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   nextDisabled: { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" },

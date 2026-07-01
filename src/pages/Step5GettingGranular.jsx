@@ -6,32 +6,6 @@ import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
 import NorthStarWord from "../components/NorthStarWord";
 
-// rampT values for progress bar hue ramp through the working phase
-const RAMP = {
-  intro1: 0.55,
-  intro2: 0.7,
-  domain: (i, total) => 0.75 + (total > 1 ? (i / (total - 1)) * 0.2 : 0.2),
-};
-
-// Button styles for boundary crossing
-const workingNext = {
-  padding: "0.75rem 2rem", background: "var(--color-accent)", color: "#fff",
-  border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
-};
-const arrivalNext = {
-  padding: "0.75rem 2rem", background: "var(--color-plum)", color: "#fff",
-  border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
-};
-const workingBack = {
-  padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
-  border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
-};
-const arrivalBack = {
-  padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",
-  border: "1.5px solid var(--color-plum)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
-};
-const nextDisabled = { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" };
-
 export default function Step5GettingGranular() {
   const { journey, update } = useJourney();
   const navigate = useNavigate();
@@ -74,20 +48,18 @@ export default function Step5GettingGranular() {
     }
   }
 
-  // ── Dedicated AI reflection screen (arrival phase) ──
   if (phase === "reflection") {
     return (
       <Shell
         title="Getting Granular"
-        accent="plum"
         footer={
           <>
-            <button onClick={() => setPhase("lookback")} style={arrivalBack}>Back</button>
-            <button onClick={() => navigate("/step/6")} style={arrivalNext}>Continue</button>
+            <button onClick={() => setPhase("lookback")} style={styles.back}>Back</button>
+            <button onClick={() => navigate("/step/6")} style={styles.next}>Continue</button>
           </>
         }
       >
-        <StepNav current={5} rampT={1} />
+        <StepNav current={5} />
         <div style={styles.placeholder}>
           <span style={styles.placeholderLabel}>AI reflection placeholder</span>
           <p style={styles.placeholderText}>
@@ -107,26 +79,23 @@ export default function Step5GettingGranular() {
     );
   }
 
-  // ── Look Back screen (arrival phase begins here) ──
   if (phase === "lookback") {
     return (
       <Shell
         title="Getting Granular"
-        accent="plum"
         footer={
           <>
-            {/* Back leads into working phase → orange */}
             <button
               onClick={() => { setDomainIndex(activeDomains.length - 1); setPhase("domain"); }}
-              style={workingBack}
+              style={styles.back}
             >
               Back to editing
             </button>
-            <button onClick={() => setPhase("reflection")} style={arrivalNext}>Continue</button>
+            <button onClick={() => setPhase("reflection")} style={styles.next}>Continue</button>
           </>
         }
       >
-        <StepNav current={5} rampT={1} />
+        <StepNav current={5} />
         <div style={styles.lookback}>
           <p style={styles.lookbackIntro}>
             Before this becomes your document, a moment to look back at what you've committed to.
@@ -171,28 +140,25 @@ export default function Step5GettingGranular() {
     );
   }
 
-  // ── Per-domain commitment entry (working phase) ──
   if (phase === "domain") {
-    const rampT = RAMP.domain(domainIndex, activeDomains.length);
     const domain = activeDomains[domainIndex];
-    // Continue on last domain leads into arrival (lookback) → plum button
-    const continueStyle = isLastDomain
-      ? (canAdvanceDomain ? arrivalNext : { ...arrivalNext, ...nextDisabled })
-      : (canAdvanceDomain ? workingNext : { ...workingNext, ...nextDisabled });
-
     return (
       <Shell
         title="Getting Granular"
         footer={
           <>
-            <button onClick={handleDomainBack} style={workingBack}>Back</button>
-            <button onClick={handleDomainNext} disabled={!canAdvanceDomain} style={continueStyle}>
+            <button onClick={handleDomainBack} style={styles.back}>Back</button>
+            <button
+              onClick={handleDomainNext}
+              disabled={!canAdvanceDomain}
+              style={{ ...styles.next, ...(!canAdvanceDomain ? styles.nextDisabled : {}) }}
+            >
               {isLastDomain ? "Review before continuing" : "Next"}
             </button>
           </>
         }
       >
-        <StepNav current={5} rampT={rampT} />
+        <StepNav current={5} />
         <p style={styles.domainCount}>{domainIndex + 1} of {activeDomains.length}</p>
         <h3 style={styles.domainName}>{domain}</h3>
         {current.items.map((item, j) => (
@@ -212,19 +178,18 @@ export default function Step5GettingGranular() {
     );
   }
 
-  // ── Intro screen 2: commitment definition + examples + fields context ──
   if (phase === "intro2") {
     return (
       <Shell
         title="Getting Granular"
         footer={
           <>
-            <button onClick={() => setPhase("intro1")} style={workingBack}>Back</button>
-            <button onClick={() => setPhase("domain")} style={workingNext}>Continue</button>
+            <button onClick={() => setPhase("intro1")} style={styles.back}>Back</button>
+            <button onClick={() => setPhase("domain")} style={styles.next}>Continue</button>
           </>
         }
       >
-        <StepNav current={5} rampT={RAMP.intro2} />
+        <StepNav current={5} />
         <p style={styles.intro}>
           These are the areas you chose to focus on. For each one, what will you commit to this year,
           the small, concrete moves that build the year you're after?
@@ -252,18 +217,18 @@ export default function Step5GettingGranular() {
     );
   }
 
-  // ── Intro screen 1: transition / context ──
+  // intro1
   return (
     <Shell
       title="Getting Granular"
       footer={
         <>
-          <button onClick={() => navigate("/step/4")} style={workingBack}>Back</button>
-          <button onClick={() => setPhase("intro2")} style={workingNext}>Continue</button>
+          <button onClick={() => navigate("/step/4")} style={styles.back}>Back</button>
+          <button onClick={() => setPhase("intro2")} style={styles.next}>Continue</button>
         </>
       }
     >
-      <StepNav current={5} rampT={RAMP.intro1} />
+      <StepNav current={5} />
       <div style={styles.transition}>
         <p>
           You started this journey looking to foster a feeling. You named the areas of your life
@@ -328,13 +293,13 @@ const styles = {
     fontSize: "0.95rem",
   },
   reviewBlock: {
-    border: "1px solid rgba(94,15,61,0.2)",
+    border: "1px solid rgba(228,74,36,0.2)",
     borderRadius: "6px",
     padding: "1rem 1.25rem",
     marginBottom: "1rem",
-    background: "rgba(94,15,61,0.04)",
+    background: "rgba(228,74,36,0.04)",
   },
-  reviewDomain: { fontFamily: "var(--font-serif)", fontSize: "1.05rem", fontWeight: 600, color: "var(--color-plum)", marginBottom: "0.6rem" },
+  reviewDomain: { fontFamily: "var(--font-serif)", fontSize: "1.05rem", fontWeight: 600, color: "var(--color-accent-deep)", marginBottom: "0.6rem" },
   reviewInput: {
     display: "block", width: "100%", padding: "0.6rem 0.75rem", fontSize: "0.95rem",
     border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
@@ -353,4 +318,13 @@ const styles = {
     letterSpacing: "0.08em", color: "var(--color-text)", opacity: 0.5, marginBottom: "0.5rem",
   },
   placeholderText: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", margin: 0, lineHeight: "1.6" },
+  back: {
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+  },
+  next: {
+    padding: "0.75rem 2rem", background: "var(--color-plum)", color: "#fff",
+    border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+  },
+  nextDisabled: { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" },
 };

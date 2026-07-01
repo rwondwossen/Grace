@@ -1,16 +1,9 @@
-const ACCENT = {
-  working: "#E44A24",
-  plum: "#5E0F3D",
-};
-
-export default function Shell({ stepLabel, title, accent = "working", children, footer }) {
-  const accentColor = ACCENT[accent];
-
+export default function Shell({ title, stepLabel, children, footer }) {
   return (
     <div style={styles.page}>
-      <div style={{ ...styles.monogram, color: accentColor }}>RW</div>
+      <div style={styles.monogram}>RW</div>
       <div style={styles.column}>
-        {stepLabel && <div style={{ ...styles.stepLabel, color: accentColor }}>{stepLabel}</div>}
+        {stepLabel && <div style={styles.stepLabel}>{stepLabel}</div>}
         {title && <h1 style={styles.title}>{title}</h1>}
         <div style={styles.content}>{children}</div>
         {footer && <div style={styles.footer}>{footer}</div>}
@@ -34,6 +27,7 @@ const styles = {
     fontWeight: 600,
     fontSize: "1.1rem",
     letterSpacing: "0.04em",
+    color: "var(--color-accent)",
   },
   column: {
     maxWidth: "var(--column-width)",
@@ -45,6 +39,7 @@ const styles = {
     fontWeight: 600,
     letterSpacing: "0.06em",
     marginBottom: "0.75rem",
+    color: "var(--color-accent)",
   },
   title: {
     textAlign: "center",

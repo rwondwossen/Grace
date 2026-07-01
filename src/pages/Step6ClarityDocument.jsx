@@ -16,7 +16,6 @@ export default function Step6ClarityDocument() {
   return (
     <Shell
       title="Your Clarity Document"
-      accent="plum"
       footer={
         <>
           <button onClick={() => navigate("/step/5")} style={styles.back}>Back</button>
@@ -86,12 +85,12 @@ const styles = {
   commitLabel: { fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text)", opacity: 0.55, marginBottom: "0.4rem" },
   commitList: { margin: 0, paddingLeft: "1.25rem", color: "var(--color-text)" },
   back: {
-    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",
-    border: "1.5px solid var(--color-plum)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   print: {
-    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",
-    border: "1.5px solid var(--color-plum)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   next: {
     padding: "0.75rem 2rem", background: "var(--color-plum)", color: "#fff",
