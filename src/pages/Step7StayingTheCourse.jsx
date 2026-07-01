@@ -4,14 +4,36 @@ import { useJourney } from "../context/JourneyContext";
 import { submitJourneyToAirtable } from "../lib/airtable";
 import Shell from "../components/Shell";
 
+const DRIFT_CHIPS = [
+  "Telling someone specific",
+  "Checking in with yourself regularly",
+  "A monthly nudge",
+  "A group of people doing this too",
+  "Something else",
+];
+
+const COMMUNITY_CHIPS = [
+  "A small group with others who've been through Grace",
+  "A place to share what I named with others",
+  "A periodic check-in from Grace itself",
+  "Seeing what others have committed to",
+  "Something else",
+];
+
 export default function Step7StayingTheCourse() {
   const { journey, update } = useJourney();
   const navigate = useNavigate();
-  const [beat, setBeat] = useState(1); // 1 | 2 | 3
-  const [status, setStatus] = useState("idle"); // idle | submitting | done | error
+  const [beat, setBeat] = useState(1);
+  const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
   const feeling = journey.northStarFeeling || "the feeling you named";
+
+  function toggleChip(field, chip) {
+    const current = journey[field] || [];
+    const next = current.includes(chip) ? current.filter((c) => c !== chip) : [...current, chip];
+    update({ [field]: next });
+  }
 
   async function handleSubmit() {
     setStatus("submitting");
@@ -25,7 +47,7 @@ export default function Step7StayingTheCourse() {
   }
 
   const canAdvanceBeat1 = journey.whatsClearer.trim() !== "" && journey.lookingForwardTo.trim() !== "";
-  const canAdvanceBeat2 = journey.accountability.trim() !== "";
+  const canAdvanceBeat2 = journey.driftCommitment.trim() !== "";
 
   if (status === "done") {
     return (
@@ -60,7 +82,7 @@ export default function Step7StayingTheCourse() {
         }
       >
         <p style={styles.beatCopy}>
-          You came in wanting to feel <strong>{feeling}</strong>. You've named where it lives,
+          You came in wanting to feel <strong style={{ color: "var(--color-plum)", fontFamily: "var(--font-serif)" }}>{feeling}</strong>. You've named where it lives,
           looked honestly at what's in the way, and made your commitments. That's the work most
           people never sit down to do.
         </p>
@@ -110,16 +132,35 @@ export default function Step7StayingTheCourse() {
           person who's ever set out to change something.
         </p>
         <p style={styles.beatCopy}>
-          What matters isn't staying perfect. It's having a way back. So: who in your life could
-          you tell what you named today — someone who'd help you find your way back when you drift?
+          What matters isn't staying perfect. It's having a way back. Different things work for
+          different people. What sounds like something you'd actually use?
         </p>
-        <label style={styles.label}>Someone who could help you find your way back</label>
-        <input
-          style={styles.input}
-          type="text"
-          placeholder="A name is enough."
-          value={journey.accountability}
-          onChange={(e) => update({ accountability: e.target.value })}
+
+        <div style={styles.chips}>
+          {DRIFT_CHIPS.map((chip) => {
+            const selected = (journey.driftChips || []).includes(chip);
+            return (
+              <button
+                key={chip}
+                onClick={() => toggleChip("driftChips", chip)}
+                style={{ ...styles.chip, ...(selected ? styles.chipSelected : {}) }}
+              >
+                {chip}
+              </button>
+            );
+          })}
+        </div>
+
+        <label style={styles.label}>
+          Of those, which one will you actually commit to? Turn that into one specific
+          commitment — a name, a day, a place you'll check in.
+        </label>
+        <textarea
+          style={styles.textarea}
+          placeholder=""
+          value={journey.driftCommitment}
+          onChange={(e) => update({ driftCommitment: e.target.value })}
+          rows={3}
         />
       </Shell>
     );
@@ -147,20 +188,37 @@ export default function Step7StayingTheCourse() {
         year on purpose. You're in good company.
       </p>
       <p style={styles.beatCopy}>
-        We're building ways for people who've been through Grace to support each other — sharing
-        what you named, small groups, places to check in. What would actually help you stay close
-        to this?
+        We're building ways for people who've been through Grace to support each other. What sounds
+        like it would actually help?
       </p>
-      <label style={styles.label}>What would help (optional)</label>
+
+      <div style={styles.chips}>
+        {COMMUNITY_CHIPS.map((chip) => {
+          const selected = (journey.communityChips || []).includes(chip);
+          return (
+            <button
+              key={chip}
+              onClick={() => toggleChip("communityChips", chip)}
+              style={{ ...styles.chip, ...(selected ? styles.chipSelected : {}) }}
+            >
+              {chip}
+            </button>
+          );
+        })}
+      </div>
+
+      <label style={styles.notesLabel}>Anything else?</label>
       <textarea
-        style={styles.textarea}
-        value={journey.communityInterest}
-        onChange={(e) => update({ communityInterest: e.target.value })}
-        rows={3}
+        style={styles.notesField}
+        placeholder="Any texture the options above don't capture…"
+        value={journey.communityNote}
+        onChange={(e) => update({ communityNote: e.target.value })}
+        rows={2}
       />
+
       <p style={styles.boardNote}>
-        And the visual board — the one you'd put on a wall — is coming. Your Clarity Document is
-        what you'll build it from.
+        One more thing worth knowing: the visual board itself, the one you'd put on a wall, isn't
+        part of Grace yet. Your Clarity Document is what you'll build it from when it arrives.
       </p>
 
       {status === "error" && (
@@ -173,17 +231,39 @@ export default function Step7StayingTheCourse() {
 const styles = {
   beatCopy: { color: "var(--color-text)", opacity: 0.85, lineHeight: "1.7", marginBottom: "0.75rem" },
   label: { display: "block", fontWeight: 600, marginBottom: "0.4rem", color: "var(--color-text)" },
+  notesLabel: { display: "block", fontSize: "0.9rem", color: "var(--color-text)", opacity: 0.75, marginBottom: "0.35rem" },
   textarea: {
     width: "100%", padding: "0.75rem", fontSize: "1rem",
     border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
     marginBottom: "1rem", boxSizing: "border-box", resize: "vertical", background: "#fff",
   },
-  input: {
-    width: "100%", padding: "0.75rem", fontSize: "1rem",
+  notesField: {
+    width: "100%", padding: "0.6rem", fontSize: "0.9rem",
     border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
-    marginBottom: "0.5rem", boxSizing: "border-box", background: "#fff",
+    marginBottom: "1rem", boxSizing: "border-box", resize: "vertical", background: "#fff",
   },
-  boardNote: { fontSize: "0.9rem", color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", marginTop: "0.75rem" },
+  chips: { display: "flex", flexWrap: "wrap", gap: "0.5rem", marginBottom: "1rem" },
+  chip: {
+    padding: "0.45rem 1rem",
+    border: "1.5px solid var(--color-plum)",
+    borderRadius: "4px",
+    background: "var(--color-paper)",
+    color: "var(--color-plum)",
+    cursor: "pointer",
+    fontSize: "0.9rem",
+  },
+  chipSelected: { background: "var(--color-plum)", color: "#fff" },
+  boardNote: {
+    color: "var(--color-text)",
+    opacity: 0.8,
+    lineHeight: "1.6",
+    marginTop: "1rem",
+    marginBottom: "0.5rem",
+    padding: "0.75rem 1rem",
+    background: "rgba(94,15,61,0.06)",
+    borderRadius: "6px",
+    fontSize: "0.95rem",
+  },
   error: { color: "#c0392b", marginTop: "1rem" },
   back: {
     padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",

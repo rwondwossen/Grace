@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
+import NorthStarWord from "../components/NorthStarWord";
 
 const EXTRA_EXAMPLES = [
   {
@@ -100,7 +101,7 @@ export default function Step3Buckets() {
             You've named {filledDomains.length}. You can keep all of them, but part of what pulls us out
             of the feeling we're after is trying to tend to everything at once. Most people find that
             three or four areas, given real attention, do more than {filledDomains.length} half-tended.
-            Which few would most move you toward feeling <strong>{feeling}</strong>?
+            Which few would most move you toward feeling <NorthStarWord>{feeling}</NorthStarWord>?
           </p>
           <div style={styles.narrowList}>
             {filledDomains.map((domain, i) => (
@@ -141,7 +142,7 @@ export default function Step3Buckets() {
 
       <p style={styles.question}>
         You can't tend to everything at once, and trying to is part of what pulls us out of feeling{" "}
-        <strong>{feeling}</strong>. So if <strong>{feeling}</strong> is what you're after, which few
+        <NorthStarWord>{feeling}</NorthStarWord>. So if <NorthStarWord>{feeling}</NorthStarWord> is what you're after, which few
         areas of your life would most support that feeling if you gave them real attention?
       </p>
 

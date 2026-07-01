@@ -9,23 +9,23 @@ export function JourneyProvider({ children }) {
     quote2Resonance: "",
     quote3Resonance: "",
     quote4Resonance: "",
-    reflectionResonance: "",   // "yes" | "no"
-    reflectionNote: "",        // optional text when "no"
+    reflectionResonance: "",
+    reflectionNote: "",
 
     // Step 2
     feelingWords: "",
     northStarFeeling: "",
 
     // Step 3
-    allDomains: ["", ""],      // everything the user generated
-    domains: [],               // kept set after optional narrowing
+    allDomains: ["", ""],
+    domains: [],
 
-    // Step 4 — array of { gap, barriers: string[], barrierNotes } per domain
+    // Step 4
     coherenceDiagnostic: [],
     step4ReflectionResonance: "",
     step4ReflectionNote: "",
 
-    // Step 5 — array of { items: string[] } per domain
+    // Step 5
     commitments: [],
     step5ReflectionResonance: "",
     step5ReflectionNote: "",
@@ -33,8 +33,10 @@ export function JourneyProvider({ children }) {
     // Step 7
     whatsClearer: "",
     lookingForwardTo: "",
-    accountability: "",
-    communityInterest: "",
+    driftChips: [],
+    driftCommitment: "",
+    communityChips: [],
+    communityNote: "",
   });
 
   function update(patch) {

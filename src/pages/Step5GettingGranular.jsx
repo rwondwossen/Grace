@@ -4,11 +4,39 @@ import { useJourney } from "../context/JourneyContext";
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
+import NorthStarWord from "../components/NorthStarWord";
+
+// rampT values for progress bar hue ramp through the working phase
+const RAMP = {
+  intro1: 0.55,
+  intro2: 0.7,
+  domain: (i, total) => 0.75 + (total > 1 ? (i / (total - 1)) * 0.2 : 0.2),
+};
+
+// Button styles for boundary crossing
+const workingNext = {
+  padding: "0.75rem 2rem", background: "var(--color-accent)", color: "#fff",
+  border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+};
+const arrivalNext = {
+  padding: "0.75rem 2rem", background: "var(--color-plum)", color: "#fff",
+  border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+};
+const workingBack = {
+  padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
+  border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+};
+const arrivalBack = {
+  padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-plum)",
+  border: "1.5px solid var(--color-plum)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
+};
+const nextDisabled = { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" };
 
 export default function Step5GettingGranular() {
   const { journey, update } = useJourney();
   const navigate = useNavigate();
-  const [phase, setPhase] = useState("intro"); // "intro" | "domain" | "lookback" | "reflection"
+  // phases: "intro1" | "intro2" | "domain" | "lookback" | "reflection"
+  const [phase, setPhase] = useState("intro1");
   const [domainIndex, setDomainIndex] = useState(0);
 
   const activeDomains = (journey.domains.length > 0 ? journey.domains : journey.allDomains).filter(
@@ -28,9 +56,10 @@ export default function Step5GettingGranular() {
   const current = commitments[domainIndex] || { items: ["", "", ""] };
   const canAdvanceDomain = current.items[0].trim() !== "";
   const feeling = journey.northStarFeeling || "the feeling you named";
+  const isLastDomain = domainIndex === activeDomains.length - 1;
 
   function handleDomainNext() {
-    if (domainIndex < activeDomains.length - 1) {
+    if (!isLastDomain) {
       setDomainIndex(domainIndex + 1);
     } else {
       setPhase("lookback");
@@ -41,22 +70,24 @@ export default function Step5GettingGranular() {
     if (domainIndex > 0) {
       setDomainIndex(domainIndex - 1);
     } else {
-      setPhase("intro");
+      setPhase("intro2");
     }
   }
 
+  // ── Dedicated AI reflection screen (arrival phase) ──
   if (phase === "reflection") {
     return (
       <Shell
         title="Getting Granular"
+        accent="plum"
         footer={
           <>
-            <button onClick={() => setPhase("lookback")} style={styles.back}>Back</button>
-            <button onClick={() => navigate("/step/6")} style={styles.next}>Continue</button>
+            <button onClick={() => setPhase("lookback")} style={arrivalBack}>Back</button>
+            <button onClick={() => navigate("/step/6")} style={arrivalNext}>Continue</button>
           </>
         }
       >
-        <StepNav current={5} />
+        <StepNav current={5} rampT={1} />
         <div style={styles.placeholder}>
           <span style={styles.placeholderLabel}>AI reflection placeholder</span>
           <p style={styles.placeholderText}>
@@ -76,28 +107,39 @@ export default function Step5GettingGranular() {
     );
   }
 
+  // ── Look Back screen (arrival phase begins here) ──
   if (phase === "lookback") {
     return (
       <Shell
         title="Getting Granular"
+        accent="plum"
         footer={
           <>
-            <button onClick={() => { setDomainIndex(activeDomains.length - 1); setPhase("domain"); }} style={styles.back}>Back to editing</button>
-            <button onClick={() => setPhase("reflection")} style={styles.next}>Continue</button>
+            {/* Back leads into working phase → orange */}
+            <button
+              onClick={() => { setDomainIndex(activeDomains.length - 1); setPhase("domain"); }}
+              style={workingBack}
+            >
+              Back to editing
+            </button>
+            <button onClick={() => setPhase("reflection")} style={arrivalNext}>Continue</button>
           </>
         }
       >
-        <StepNav current={5} />
+        <StepNav current={5} rampT={1} />
         <div style={styles.lookback}>
           <p style={styles.lookbackIntro}>
             Before this becomes your document, a moment to look back at what you've committed to.
           </p>
           <p style={styles.lookbackCopy}>
-            The commitments that tend to stick share a few markers. They pull toward feeling{" "}
-            <strong>{feeling}</strong> and the life you're trying to tend. They're concrete enough
-            that you'd know whether you'd done them. They're small enough to fit a real year, and
-            they matter enough to be worth the effort.
+            The commitments that tend to stick share a few markers:
           </p>
+          <ul style={styles.markerList}>
+            <li>They pull toward feeling <NorthStarWord>{feeling}</NorthStarWord> and the life you're trying to tend.</li>
+            <li>They're concrete enough that you'd know whether you'd done them.</li>
+            <li>They're small enough to fit a real year.</li>
+            <li>They matter enough to be worth the effort.</li>
+          </ul>
           <p style={styles.lookbackCopy}>
             Read yours back with that in mind. Edit anything you'd like to, or carry them forward as
             they are.
@@ -129,30 +171,63 @@ export default function Step5GettingGranular() {
     );
   }
 
-  if (phase === "intro") {
+  // ── Per-domain commitment entry (working phase) ──
+  if (phase === "domain") {
+    const rampT = RAMP.domain(domainIndex, activeDomains.length);
+    const domain = activeDomains[domainIndex];
+    // Continue on last domain leads into arrival (lookback) → plum button
+    const continueStyle = isLastDomain
+      ? (canAdvanceDomain ? arrivalNext : { ...arrivalNext, ...nextDisabled })
+      : (canAdvanceDomain ? workingNext : { ...workingNext, ...nextDisabled });
+
     return (
       <Shell
         title="Getting Granular"
-        footer={<button onClick={() => setPhase("domain")} style={styles.next}>Continue</button>}
+        footer={
+          <>
+            <button onClick={handleDomainBack} style={workingBack}>Back</button>
+            <button onClick={handleDomainNext} disabled={!canAdvanceDomain} style={continueStyle}>
+              {isLastDomain ? "Review before continuing" : "Next"}
+            </button>
+          </>
+        }
       >
-        <StepNav current={5} />
-        <div style={styles.transition}>
-          <p>
-            You started this journey looking to foster a feeling. You named the areas of your life
-            that would support it, and you've looked honestly at where things stand and what's
-            getting in the way. That clarity is what makes everything next possible.{" "}
-            <strong>Now you get to build, with focus, the life you actually want.</strong>
-          </p>
-          <p>
-            The commitments you're about to make are how you do it, the real work of building that
-            life one small move at a time. So picture this time next year, the version of you who has
-            been tending to these areas. What are they doing differently?
-          </p>
-        </div>
+        <StepNav current={5} rampT={rampT} />
+        <p style={styles.domainCount}>{domainIndex + 1} of {activeDomains.length}</p>
+        <h3 style={styles.domainName}>{domain}</h3>
+        {current.items.map((item, j) => (
+          <input
+            key={j}
+            style={styles.input}
+            type="text"
+            placeholder={j === 0 ? "Commitment (required)" : `Commitment ${j + 1} (optional)`}
+            value={item}
+            onChange={(e) => setCommitment(domainIndex, j, e.target.value)}
+          />
+        ))}
+        <p style={styles.helperText}>
+          A good test: could someone who doesn't know you tell whether you'd done it?
+        </p>
+      </Shell>
+    );
+  }
 
+  // ── Intro screen 2: commitment definition + examples + fields context ──
+  if (phase === "intro2") {
+    return (
+      <Shell
+        title="Getting Granular"
+        footer={
+          <>
+            <button onClick={() => setPhase("intro1")} style={workingBack}>Back</button>
+            <button onClick={() => setPhase("domain")} style={workingNext}>Continue</button>
+          </>
+        }
+      >
+        <StepNav current={5} rampT={RAMP.intro2} />
         <p style={styles.intro}>
           These are the areas you chose to focus on. For each one, what will you commit to this year,
-          the small, concrete moves that build the life you're after?
+          the small, concrete moves that build the year you're after?
         </p>
 
         <div style={styles.examples}>
@@ -177,40 +252,31 @@ export default function Step5GettingGranular() {
     );
   }
 
-  const domain = activeDomains[domainIndex];
-
+  // ── Intro screen 1: transition / context ──
   return (
     <Shell
       title="Getting Granular"
       footer={
         <>
-          <button onClick={handleDomainBack} style={styles.back}>Back</button>
-          <button
-            onClick={handleDomainNext}
-            disabled={!canAdvanceDomain}
-            style={{ ...styles.next, ...(!canAdvanceDomain ? styles.nextDisabled : {}) }}
-          >
-            {domainIndex < activeDomains.length - 1 ? "Next" : "Review before continuing"}
-          </button>
+          <button onClick={() => navigate("/step/4")} style={workingBack}>Back</button>
+          <button onClick={() => setPhase("intro2")} style={workingNext}>Continue</button>
         </>
       }
     >
-      <StepNav current={5} />
-      <p style={styles.domainCount}>{domainIndex + 1} of {activeDomains.length}</p>
-      <h3 style={styles.domainName}>{domain}</h3>
-      {current.items.map((item, j) => (
-        <input
-          key={j}
-          style={styles.input}
-          type="text"
-          placeholder={j === 0 ? "Commitment (required)" : `Commitment ${j + 1} (optional)`}
-          value={item}
-          onChange={(e) => setCommitment(domainIndex, j, e.target.value)}
-        />
-      ))}
-      <p style={styles.helperText}>
-        A good test: could someone who doesn't know you tell whether you'd done it?
-      </p>
+      <StepNav current={5} rampT={RAMP.intro1} />
+      <div style={styles.transition}>
+        <p>
+          You started this journey looking to foster a feeling. You named the areas of your life
+          that would support it, and you've looked honestly at where things stand and what's
+          getting in the way. That clarity is what makes everything next possible.{" "}
+          <strong>Now you get to build, with focus, the year you actually want.</strong>
+        </p>
+        <p>
+          The commitments you're about to make are how you do it, the real work of building that
+          life one small move at a time. So picture this time next year, the version of you who has
+          been tending to these areas. What are they doing differently?
+        </p>
+      </div>
     </Shell>
   );
 }
@@ -221,7 +287,6 @@ const styles = {
     border: "1px solid rgba(228,74,36,0.2)",
     borderRadius: "6px",
     padding: "1.25rem",
-    marginBottom: "1.75rem",
     lineHeight: "1.7",
     fontSize: "1rem",
     color: "var(--color-text)",
@@ -254,15 +319,22 @@ const styles = {
   helperText: { fontSize: "0.82rem", color: "var(--color-text)", opacity: 0.55, margin: "0.25rem 0 0", fontStyle: "italic" },
   lookback: { marginBottom: "0.5rem" },
   lookbackIntro: { fontSize: "1.05rem", fontWeight: 600, marginBottom: "1rem", color: "var(--color-text)" },
-  lookbackCopy: { color: "var(--color-text)", opacity: 0.85, lineHeight: "1.7", marginBottom: "0.75rem" },
+  lookbackCopy: { color: "var(--color-text)", opacity: 0.85, lineHeight: "1.7", marginBottom: "0.5rem" },
+  markerList: {
+    margin: "0 0 0.75rem 1.25rem",
+    padding: 0,
+    color: "var(--color-text)",
+    lineHeight: "1.9",
+    fontSize: "0.95rem",
+  },
   reviewBlock: {
-    border: "1px solid rgba(228,74,36,0.2)",
+    border: "1px solid rgba(94,15,61,0.2)",
     borderRadius: "6px",
     padding: "1rem 1.25rem",
     marginBottom: "1rem",
-    background: "rgba(228,74,36,0.04)",
+    background: "rgba(94,15,61,0.04)",
   },
-  reviewDomain: { fontFamily: "var(--font-serif)", fontSize: "1.05rem", fontWeight: 600, color: "var(--color-accent-deep)", marginBottom: "0.6rem" },
+  reviewDomain: { fontFamily: "var(--font-serif)", fontSize: "1.05rem", fontWeight: 600, color: "var(--color-plum)", marginBottom: "0.6rem" },
   reviewInput: {
     display: "block", width: "100%", padding: "0.6rem 0.75rem", fontSize: "0.95rem",
     border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
@@ -277,22 +349,8 @@ const styles = {
     marginBottom: "0.5rem",
   },
   placeholderLabel: {
-    display: "block",
-    fontSize: "0.7rem",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    color: "var(--color-text)",
-    opacity: 0.5,
-    marginBottom: "0.5rem",
+    display: "block", fontSize: "0.7rem", textTransform: "uppercase",
+    letterSpacing: "0.08em", color: "var(--color-text)", opacity: 0.5, marginBottom: "0.5rem",
   },
   placeholderText: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", margin: 0, lineHeight: "1.6" },
-  back: {
-    padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
-    border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
-  },
-  next: {
-    padding: "0.75rem 2rem", background: "var(--color-accent)", color: "#fff",
-    border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
-  },
-  nextDisabled: { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" },
 };

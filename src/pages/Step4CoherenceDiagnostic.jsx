@@ -9,6 +9,10 @@ const BARRIER_OPTIONS = [
   "Awareness", "Time", "Resources", "Energy", "Competing priorities", "Identity",
 ];
 
+// rampT for progress bar: step 4 intro = 0.2, step 4 domain screens = 0.4
+const RAMP_INTRO = 0.2;
+const RAMP_DOMAIN = 0.4;
+
 export default function Step4CoherenceDiagnostic() {
   const { journey, update } = useJourney();
   const navigate = useNavigate();
@@ -67,9 +71,10 @@ export default function Step4CoherenceDiagnostic() {
           </>
         }
       >
-        <StepNav current={4} />
+        <StepNav current={4} rampT={RAMP_INTRO} />
         <p style={styles.instruction}>
-          In the areas you've named, what is your life currently showing? And what's standing in the way?
+          You've named the areas that matter. Now comes the harder question: what's actually
+          true about them right now. Not what you wish were true. What is. Let's do that next.
         </p>
         <p style={styles.tone}>The gap is not a failure. It's the most useful information you have.</p>
       </Shell>
@@ -87,7 +92,7 @@ export default function Step4CoherenceDiagnostic() {
           </>
         }
       >
-        <StepNav current={4} />
+        <StepNav current={4} rampT={RAMP_DOMAIN} />
         <div style={styles.placeholder}>
           <span style={styles.placeholderLabel}>AI reflection placeholder</span>
           <p style={styles.placeholderText}>
@@ -125,7 +130,7 @@ export default function Step4CoherenceDiagnostic() {
         </>
       }
     >
-      <StepNav current={4} />
+      <StepNav current={4} rampT={RAMP_DOMAIN} />
       <p style={styles.domainCount}>{domainIndex + 1} of {activeDomains.length}</p>
       <h3 style={styles.domainName}>{domain}</h3>
 
@@ -204,13 +209,8 @@ const styles = {
     marginBottom: "0.5rem",
   },
   placeholderLabel: {
-    display: "block",
-    fontSize: "0.7rem",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    color: "var(--color-text)",
-    opacity: 0.5,
-    marginBottom: "0.5rem",
+    display: "block", fontSize: "0.7rem", textTransform: "uppercase",
+    letterSpacing: "0.08em", color: "var(--color-text)", opacity: 0.5, marginBottom: "0.5rem",
   },
   placeholderText: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", margin: 0, lineHeight: "1.6" },
   back: {
