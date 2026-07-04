@@ -61,7 +61,7 @@ export default function Step6Accountability() {
       </div>
 
       <label style={styles.label}>
-        Turn that into one specific commitment — a name, a day, a place you'll check in.
+        Turn that into one specific commitment: a name, a day, a place you'll check in.
       </label>
       <textarea
         style={styles.textarea}

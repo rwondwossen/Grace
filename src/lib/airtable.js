@@ -10,7 +10,6 @@ export async function submitJourneyToAirtable(data) {
     "Quote 2 Resonance": data.quote2Resonance,
     "Quote 3 Resonance": data.quote3Resonance,
     "Quote 4 Resonance": data.quote4Resonance,
-    "Quote 5 Resonance": data.quote5Resonance,
     "Reflection Resonance": data.reflectionResonance,
     "Reflection Note": data.reflectionNote,
 

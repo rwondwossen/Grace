@@ -8,7 +8,7 @@ import NorthStarWord from "../components/NorthStarWord";
 const EXTRA_EXAMPLES = [
   {
     feeling: "present",
-    text: "When I wanted to feel present, I kept coming back to parenting and creative work — the two places where I was always distracted, always half-elsewhere.",
+    text: "When I wanted to feel present, I kept coming back to parenting and creative work. Those were the two places where I was always distracted, always half-elsewhere.",
   },
   {
     feeling: "strong",

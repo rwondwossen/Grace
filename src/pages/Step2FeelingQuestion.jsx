@@ -41,7 +41,11 @@ export default function Step2FeelingQuestion() {
         rows={4}
       />
 
-      <label style={styles.label}>Your north star — a word, phrase, or tagline</label>
+      <p style={styles.northStarExplainer}>
+        A north star is the one feeling you keep coming back to. The thing you'd know if you had it.
+        It doesn't have to be a single word. A phrase or a short sentence works just as well.
+      </p>
+      <label style={styles.label}>Your north star: a word, phrase, or tagline</label>
       <input
         style={styles.input}
         type="text"
@@ -72,6 +76,7 @@ const styles = {
     border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
     marginBottom: "1rem", boxSizing: "border-box", background: "#fff",
   },
+  northStarExplainer: { color: "var(--color-text)", opacity: 0.75, marginBottom: "0.75rem", lineHeight: "1.6", fontSize: "0.95rem" },
   prompts: { color: "var(--color-text)", opacity: 0.65, fontSize: "0.9rem", marginBottom: "0.5rem", lineHeight: "1.6" },
   back: {
     padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",

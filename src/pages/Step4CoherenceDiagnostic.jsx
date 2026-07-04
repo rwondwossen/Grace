@@ -96,7 +96,7 @@ export default function Step4CoherenceDiagnostic() {
         <div style={styles.placeholder}>
           <span style={styles.placeholderLabel}>AI reflection placeholder</span>
           <p style={styles.placeholderText}>
-            [AI reflection appears here — domain by domain, one to two sentences each, naming
+            [AI reflection appears here. Domain by domain, one to two sentences each, naming
             the gap and barrier as the user described them, reflected back with warmth and without
             judgment. One closing sentence on the overall pattern across domains.]
           </p>
@@ -136,7 +136,7 @@ export default function Step4CoherenceDiagnostic() {
       <h3 style={styles.domainName}>{domain}</h3>
 
       <p style={styles.pacingLine}>
-        This is probably the hardest question in the whole sequence. Be honest — not harsh, just honest.
+        This is probably the hardest question in the whole sequence. Be honest. Not harsh, just honest.
       </p>
       <label style={styles.label}>
         What does your {domain} actually look like right now?

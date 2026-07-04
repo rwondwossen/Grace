@@ -82,10 +82,16 @@ export default function Step8ClosingReflection() {
         rows={3}
       />
 
-      <p style={styles.closingNote}>
-        Grace ends at the Clarity Document. That's by design — the point is a clear, returnable
-        record of what you named, not another thing to manage. Keep it somewhere you'll see it.
-      </p>
+      <div style={styles.closingNote}>
+        <p style={styles.closingP}>
+          You named what you want to feel. You looked honestly at what's in the way.
+          You made commitments. Keep returning to your Clarity Document.
+          Every time you do, the wins compound.
+        </p>
+        <button onClick={() => navigate("/step/7")} style={styles.printLink}>
+          Print or save your Clarity Document
+        </button>
+      </div>
 
       {status === "error" && (
         <p style={styles.error}>Something went wrong: {errorMsg}</p>
@@ -104,15 +110,26 @@ const styles = {
     marginBottom: "1rem", boxSizing: "border-box", resize: "vertical", background: "#fff",
   },
   closingNote: {
-    color: "var(--color-text)",
-    opacity: 0.8,
-    lineHeight: "1.6",
     marginTop: "1rem",
     marginBottom: "0.5rem",
-    padding: "0.75rem 1rem",
+    padding: "1rem 1.25rem",
     background: "rgba(228,74,36,0.06)",
     borderRadius: "6px",
+  },
+  closingP: {
+    color: "var(--color-text)",
+    lineHeight: "1.7",
+    marginBottom: "0.75rem",
     fontSize: "0.95rem",
+  },
+  printLink: {
+    background: "none",
+    border: "none",
+    padding: 0,
+    color: "var(--color-accent-deep)",
+    cursor: "pointer",
+    fontSize: "0.9rem",
+    textDecoration: "underline",
   },
   error: { color: "#c0392b", marginTop: "1rem" },
   back: {

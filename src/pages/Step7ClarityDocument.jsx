@@ -28,6 +28,10 @@ export default function Step7ClarityDocument() {
       <p style={styles.instruction}>
         Everything you've named, in one place. Save it, print it, return to it.
       </p>
+      <p style={styles.leadIn}>
+        One more thing before you go: take a moment to read what you've put here.
+        This is the document you'll come back to.
+      </p>
 
       <div style={styles.doc} id="clarity-doc">
         <div style={styles.northStar}>
@@ -68,7 +72,8 @@ export default function Step7ClarityDocument() {
 }
 
 const styles = {
-  instruction: { color: "var(--color-text)", opacity: 0.75, marginBottom: "1.5rem", lineHeight: "1.6" },
+  instruction: { color: "var(--color-text)", opacity: 0.75, marginBottom: "0.75rem", lineHeight: "1.6" },
+  leadIn: { color: "var(--color-text)", opacity: 0.85, marginBottom: "1.5rem", lineHeight: "1.6", fontStyle: "italic" },
   doc: {
     border: "1px solid rgba(94,15,61,0.2)", borderRadius: "8px",
     padding: "2rem", marginBottom: "0.5rem", background: "rgba(94,15,61,0.04)",

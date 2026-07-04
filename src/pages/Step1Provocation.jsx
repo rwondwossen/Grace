@@ -18,16 +18,11 @@ const QUOTES = [
   },
   {
     key: "quote3Resonance",
-    text: "You cannot find peace by avoiding life.",
-    attribution: "Virginia Woolf",
-  },
-  {
-    key: "quote4Resonance",
-    text: "You are your best thing. You are.",
+    text: "You your best thing. You are.",
     attribution: "Toni Morrison",
   },
   {
-    key: "quote5Resonance",
+    key: "quote4Resonance",
     text: "Beware the barrenness of a busy life.",
     attribution: "Socrates",
   },
@@ -81,7 +76,7 @@ export default function Step1Provocation() {
         <div style={styles.placeholder}>
           <span style={styles.placeholderLabel}>AI reflection placeholder</span>
           <p style={styles.placeholderText}>
-            [AI reflection appears here — two to three sentences, warm and specific,
+            [AI reflection appears here. Two to three sentences, warm and specific,
             generated from the user's responses to all four quotes. Not a summary.
             An observation that feels written for this specific person.]
           </p>

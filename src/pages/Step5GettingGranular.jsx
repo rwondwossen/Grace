@@ -63,7 +63,7 @@ export default function Step5GettingGranular() {
         <div style={styles.placeholder}>
           <span style={styles.placeholderLabel}>AI reflection placeholder</span>
           <p style={styles.placeholderText}>
-            [AI reflection appears here — does what the user committed to actually address what
+            [AI reflection appears here. Does what the user committed to actually address what
             they diagnosed? One to two sentences per domain. One closing sentence specific to
             this person. Honest, not a cheerleader.]
           </p>
@@ -198,7 +198,7 @@ export default function Step5GettingGranular() {
 
         <div style={styles.examples}>
           <p style={styles.examplesDefn}>
-            A commitment is a small, concrete promise to yourself — something specific enough that
+            A commitment is a small, concrete promise to yourself, something specific enough that
             someone who doesn't know you could tell whether you'd done it. Aim for one to three per
             area, ambitious enough to matter and kind enough to fit the life you actually have.
           </p>

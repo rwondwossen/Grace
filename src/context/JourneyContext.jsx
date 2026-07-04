@@ -17,7 +17,6 @@ const DEFAULT_STATE = {
   quote2Resonance: "",
   quote3Resonance: "",
   quote4Resonance: "",
-  quote5Resonance: "",
   reflectionResonance: "",
   reflectionNote: "",
 
