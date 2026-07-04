@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
 import Shell from "../components/Shell";
@@ -31,7 +31,8 @@ const QUOTES = [
 const RESONANCE_OPTIONS = ["Deeply", "Somewhat", "Not really"];
 
 export default function Step1Provocation() {
-  const { journey, update } = useJourney();
+  const { journey, update, reset } = useJourney();
+  useEffect(() => { reset(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const navigate = useNavigate();
   const [phase, setPhase] = useState("quotes"); // "quotes" | "reflection"
   const [currentQuote, setCurrentQuote] = useState(0);

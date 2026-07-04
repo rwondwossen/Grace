@@ -65,8 +65,15 @@ export function JourneyProvider({ children }) {
     });
   }
 
+  function reset() {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {}
+    setJourney(DEFAULT_STATE);
+  }
+
   return (
-    <JourneyContext.Provider value={{ journey, update }}>
+    <JourneyContext.Provider value={{ journey, update, reset }}>
       {children}
     </JourneyContext.Provider>
   );
