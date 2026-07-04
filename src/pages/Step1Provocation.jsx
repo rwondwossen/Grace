@@ -39,7 +39,7 @@ export default function Step1Provocation() {
   const { journey, update, reset } = useJourney();
   useEffect(() => { reset(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const navigate = useNavigate();
-  const [phase, setPhase] = useState("intro"); // "intro" | "quotes" | "reflection"
+  const [phase, setPhase] = useState("quotes"); // "quotes" | "reflection"
   const [currentQuote, setCurrentQuote] = useState(0);
 
   const quote = QUOTES[currentQuote];
@@ -59,25 +59,6 @@ export default function Step1Provocation() {
 
   const canAdvanceQuote = currentResonance !== "";
   const canAdvanceReflection = journey.reflectionResonance !== "";
-
-  if (phase === "intro") {
-    return (
-      <Shell
-        title="The Provocation"
-        footer={
-          <button onClick={() => setPhase("quotes")} style={styles.next}>
-            Continue
-          </button>
-        }
-      >
-        <StepNav current={1} />
-        <p style={styles.leadIn}>
-          A few short provocations. Not all of them will land the same way, and that's fine.
-          What you notice matters as much as what you feel.
-        </p>
-      </Shell>
-    );
-  }
 
   if (phase === "reflection") {
     return (
@@ -132,6 +113,12 @@ export default function Step1Provocation() {
       }
     >
       <StepNav current={1} />
+      {currentQuote === 0 && (
+        <p style={styles.leadIn}>
+          A few short provocations. Not all of them will land the same way, and that's fine.
+          What you notice matters as much as what you feel.
+        </p>
+      )}
       <p style={styles.instruction}>Read this slowly. Then tell us how much it resonates.</p>
 
       <blockquote style={styles.quote}>
