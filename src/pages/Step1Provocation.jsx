@@ -23,7 +23,7 @@ const QUOTES = [
   },
   {
     key: "quote4Resonance",
-    text: "You your best thing. You are.",
+    text: "You are your best thing.",
     attribution: "Toni Morrison",
   },
   {
