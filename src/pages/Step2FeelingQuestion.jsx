@@ -41,7 +41,7 @@ export default function Step2FeelingQuestion() {
         rows={4}
       />
 
-      <label style={styles.label}>Your north star — one word or tagline</label>
+      <label style={styles.label}>Your north star — a word, phrase, or tagline</label>
       <input
         style={styles.input}
         type="text"

@@ -1,4 +1,4 @@
-export default function ReflectionResponse({ resonance, note, onResonance, onNote }) {
+export default function ReflectionResponse({ resonance, note, onResonance, onNote, yesAck = "Good. Carry that with you." }) {
   return (
     <div style={styles.wrapper}>
       <p style={styles.question}>Does this resonate?</p>
@@ -18,7 +18,7 @@ export default function ReflectionResponse({ resonance, note, onResonance, onNot
       </div>
 
       {resonance === "yes" && (
-        <p style={styles.ack}>Good. Carry that with you.</p>
+        <p style={styles.ack}>{yesAck}</p>
       )}
 
       {resonance === "no" && (

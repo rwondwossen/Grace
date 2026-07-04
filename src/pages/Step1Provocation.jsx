@@ -8,21 +8,26 @@ import ReflectionResponse from "../components/ReflectionResponse";
 const QUOTES = [
   {
     key: "quote1Resonance",
-    text: "Caring for myself is not self-indulgence, it is self-preservation, and that is an act of political warfare.",
-    attribution: "Audre Lorde",
-  },
-  {
-    key: "quote2Resonance",
     text: "The things that make you feel most alive are often the things you are neglecting.",
     attribution: "Parker J. Palmer",
   },
   {
+    key: "quote2Resonance",
+    text: "I am large, I contain multitudes.",
+    attribution: "Walt Whitman",
+  },
+  {
     key: "quote3Resonance",
-    text: "Wholeness is not achieved by cutting off a portion of one's being, but by integration of the contraries.",
-    attribution: "Carl Jung",
+    text: "You cannot find peace by avoiding life.",
+    attribution: "Virginia Woolf",
   },
   {
     key: "quote4Resonance",
+    text: "You are your best thing. You are.",
+    attribution: "Toni Morrison",
+  },
+  {
+    key: "quote5Resonance",
     text: "Beware the barrenness of a busy life.",
     attribution: "Socrates",
   },
@@ -87,6 +92,7 @@ export default function Step1Provocation() {
           note={journey.reflectionNote}
           onResonance={(val) => update({ reflectionResonance: val })}
           onNote={(val) => update({ reflectionNote: val })}
+          yesAck="Let that sit for a while."
         />
       </Shell>
     );

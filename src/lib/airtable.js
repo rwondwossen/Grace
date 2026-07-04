@@ -10,6 +10,7 @@ export async function submitJourneyToAirtable(data) {
     "Quote 2 Resonance": data.quote2Resonance,
     "Quote 3 Resonance": data.quote3Resonance,
     "Quote 4 Resonance": data.quote4Resonance,
+    "Quote 5 Resonance": data.quote5Resonance,
     "Reflection Resonance": data.reflectionResonance,
     "Reflection Note": data.reflectionNote,
 
@@ -27,12 +28,11 @@ export async function submitJourneyToAirtable(data) {
     "Step 5 Reflection Resonance": data.step5ReflectionResonance,
     "Step 5 Reflection Note": data.step5ReflectionNote,
 
+    "Drift Chip": data.driftChip,
+    "Drift Commitment": data.driftCommitment,
+
     "What's Clearer": data.whatsClearer,
     "Looking Forward To": data.lookingForwardTo,
-    "Drift Chips": JSON.stringify(data.driftChips),
-    "Drift Commitment": data.driftCommitment,
-    "Community Chips": JSON.stringify(data.communityChips),
-    "Community Note": data.communityNote,
 
     "Submitted At": new Date().toISOString(),
   };

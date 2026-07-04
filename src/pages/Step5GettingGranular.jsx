@@ -74,6 +74,7 @@ export default function Step5GettingGranular() {
           note={journey.step5ReflectionNote}
           onResonance={(val) => update({ step5ReflectionResonance: val })}
           onNote={(val) => update({ step5ReflectionNote: val })}
+          yesAck="No need to do anything with that yet. Just notice it."
         />
       </Shell>
     );

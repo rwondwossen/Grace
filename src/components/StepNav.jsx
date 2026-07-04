@@ -1,4 +1,4 @@
-export default function StepNav({ current, total = 7 }) {
+export default function StepNav({ current, total = 8 }) {
   return (
     <div style={styles.wrapper}>
       <div style={styles.bar}>

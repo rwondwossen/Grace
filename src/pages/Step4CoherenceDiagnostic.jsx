@@ -6,7 +6,7 @@ import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
 
 const BARRIER_OPTIONS = [
-  "Awareness", "Time", "Resources", "Energy", "Competing priorities", "Identity",
+  "Awareness", "Energy", "Competing priorities", "Guilt", "Time", "Resources",
 ];
 
 // rampT for progress bar: step 4 intro = 0.2, step 4 domain screens = 0.4
@@ -107,6 +107,7 @@ export default function Step4CoherenceDiagnostic() {
           note={journey.step4ReflectionNote}
           onResonance={(val) => update({ step4ReflectionResonance: val })}
           onNote={(val) => update({ step4ReflectionNote: val })}
+          yesAck="That's worth holding onto."
         />
       </Shell>
     );
@@ -134,8 +135,11 @@ export default function Step4CoherenceDiagnostic() {
       <p style={styles.domainCount}>{domainIndex + 1} of {activeDomains.length}</p>
       <h3 style={styles.domainName}>{domain}</h3>
 
+      <p style={styles.pacingLine}>
+        This is probably the hardest question in the whole sequence. Be honest — not harsh, just honest.
+      </p>
       <label style={styles.label}>
-        What does your {domain} life actually look like right now?
+        What does your {domain} actually look like right now?
       </label>
       <textarea
         style={styles.textarea}
@@ -161,6 +165,13 @@ export default function Step4CoherenceDiagnostic() {
         })}
       </div>
 
+      {(current.barriers || []).length > 3 && (
+        <p style={styles.narrowingNudge}>
+          You've named several things getting in the way. Which one or two are doing the most work?
+          Moving on one or two real barriers tends to open more than spreading attention across all of them.
+        </p>
+      )}
+
       <label style={styles.notesLabel}>Anything else about what's getting in the way?</label>
       <textarea
         style={styles.notesField}
@@ -174,6 +185,17 @@ export default function Step4CoherenceDiagnostic() {
 }
 
 const styles = {
+  pacingLine: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", marginBottom: "0.5rem", fontSize: "0.95rem", lineHeight: "1.5" },
+  narrowingNudge: {
+    background: "rgba(228,74,36,0.06)",
+    border: "1px solid rgba(228,74,36,0.2)",
+    borderRadius: "6px",
+    padding: "0.75rem 1rem",
+    marginBottom: "0.75rem",
+    color: "var(--color-text)",
+    fontSize: "0.9rem",
+    lineHeight: "1.6",
+  },
   instruction: { fontSize: "1.05rem", marginBottom: "0.4rem", color: "var(--color-text)", lineHeight: "1.6" },
   tone: { fontStyle: "italic", color: "var(--color-text)", opacity: 0.7 },
   domainCount: { fontSize: "0.8rem", color: "var(--color-text)", opacity: 0.5, marginBottom: "0.4rem" },
