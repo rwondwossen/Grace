@@ -18,11 +18,16 @@ const QUOTES = [
   },
   {
     key: "quote3Resonance",
+    text: "If I didn't define myself for myself, I would be crunched into other people's fantasies for me and eaten alive.",
+    attribution: "Audre Lorde",
+  },
+  {
+    key: "quote4Resonance",
     text: "You your best thing. You are.",
     attribution: "Toni Morrison",
   },
   {
-    key: "quote4Resonance",
+    key: "quote5Resonance",
     text: "Beware the barrenness of a busy life.",
     attribution: "Socrates",
   },
@@ -34,7 +39,7 @@ export default function Step1Provocation() {
   const { journey, update, reset } = useJourney();
   useEffect(() => { reset(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const navigate = useNavigate();
-  const [phase, setPhase] = useState("quotes"); // "quotes" | "reflection"
+  const [phase, setPhase] = useState("intro"); // "intro" | "quotes" | "reflection"
   const [currentQuote, setCurrentQuote] = useState(0);
 
   const quote = QUOTES[currentQuote];
@@ -54,6 +59,25 @@ export default function Step1Provocation() {
 
   const canAdvanceQuote = currentResonance !== "";
   const canAdvanceReflection = journey.reflectionResonance !== "";
+
+  if (phase === "intro") {
+    return (
+      <Shell
+        title="The Provocation"
+        footer={
+          <button onClick={() => setPhase("quotes")} style={styles.next}>
+            Continue
+          </button>
+        }
+      >
+        <StepNav current={1} />
+        <p style={styles.leadIn}>
+          A few short provocations. Not all of them will land the same way, and that's fine.
+          What you notice matters as much as what you feel.
+        </p>
+      </Shell>
+    );
+  }
 
   if (phase === "reflection") {
     return (
@@ -138,6 +162,7 @@ export default function Step1Provocation() {
 }
 
 const styles = {
+  leadIn: { color: "var(--color-text)", opacity: 0.85, lineHeight: "1.8", fontSize: "1.05rem", marginBottom: "0.5rem" },
   instruction: { color: "var(--color-text)", marginBottom: "2rem", lineHeight: "1.6" },
   quote: {
     borderLeft: "3px solid var(--color-accent)",

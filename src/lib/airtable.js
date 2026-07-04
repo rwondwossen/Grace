@@ -3,6 +3,11 @@ const BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID;
 const TABLE_NAME = import.meta.env.VITE_AIRTABLE_TABLE_NAME;
 
 export async function submitJourneyToAirtable(data) {
+  // Stub: resolve immediately without hitting the backend until credentials are wired up
+  if (!API_KEY || !BASE_ID || !TABLE_NAME) {
+    return Promise.resolve({ stubbed: true });
+  }
+
   const url = `https://api.airtable.com/v0/${BASE_ID}/${encodeURIComponent(TABLE_NAME)}`;
 
   const fields = {
@@ -10,6 +15,7 @@ export async function submitJourneyToAirtable(data) {
     "Quote 2 Resonance": data.quote2Resonance,
     "Quote 3 Resonance": data.quote3Resonance,
     "Quote 4 Resonance": data.quote4Resonance,
+    "Quote 5 Resonance": data.quote5Resonance,
     "Reflection Resonance": data.reflectionResonance,
     "Reflection Note": data.reflectionNote,
 
