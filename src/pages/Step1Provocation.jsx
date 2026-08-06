@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
+import { fetchReflection } from "../lib/reflect";
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
@@ -41,6 +42,8 @@ export default function Step1Provocation() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState("quotes"); // "quotes" | "reflection"
   const [currentQuote, setCurrentQuote] = useState(0);
+  const [reflectionText, setReflectionText] = useState(null);
+  const [reflectionLoading, setReflectionLoading] = useState(false);
 
   const quote = QUOTES[currentQuote];
   const currentResonance = journey[quote.key];
@@ -54,6 +57,17 @@ export default function Step1Provocation() {
       setCurrentQuote(currentQuote + 1);
     } else {
       setPhase("reflection");
+      setReflectionLoading(true);
+      fetchReflection("step1", {
+        quote1Resonance: journey.quote1Resonance,
+        quote2Resonance: journey.quote2Resonance,
+        quote3Resonance: journey.quote3Resonance,
+        quote4Resonance: journey.quote4Resonance,
+        quote5Resonance: journey.quote5Resonance,
+      }).then((text) => {
+        setReflectionText(text);
+        setReflectionLoading(false);
+      });
     }
   }
 
@@ -79,13 +93,16 @@ export default function Step1Provocation() {
       >
         <StepNav current={1} />
 
-        <div style={styles.placeholder}>
-          <span style={styles.placeholderLabel}>AI reflection placeholder</span>
-          <p style={styles.placeholderText}>
-            [AI reflection appears here. Two to three sentences, warm and specific,
-            generated from the user's responses to all four quotes. Not a summary.
-            An observation that feels written for this specific person.]
-          </p>
+        <div style={styles.reflectionBox}>
+          {reflectionLoading ? (
+            <p style={styles.reflectionLoading}>Reading your responses...</p>
+          ) : reflectionText ? (
+            <p style={styles.reflectionText}>{reflectionText}</p>
+          ) : (
+            <p style={styles.reflectionFallback}>
+              Take a moment with what landed. What did you notice?
+            </p>
+          )}
         </div>
 
         <ReflectionResponse
@@ -177,23 +194,17 @@ const styles = {
   },
   optionSelected: { background: "var(--color-accent)", color: "#fff" },
   quoteCount: { fontSize: "0.8rem", color: "var(--color-text)", opacity: 0.5, marginBottom: "1rem" },
-  placeholder: {
-    background: "rgba(44,35,29,0.04)",
-    border: "1.5px dashed rgba(44,35,29,0.3)",
+  reflectionBox: {
+    background: "rgba(94,15,61,0.04)",
+    border: "1px solid rgba(94,15,61,0.18)",
     borderRadius: "6px",
-    padding: "1.25rem",
-    marginBottom: "0.5rem",
+    padding: "1.25rem 1.5rem",
+    marginBottom: "1.5rem",
+    minHeight: "4rem",
   },
-  placeholderLabel: {
-    display: "block",
-    fontSize: "0.7rem",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    color: "var(--color-text)",
-    opacity: 0.5,
-    marginBottom: "0.5rem",
-  },
-  placeholderText: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", margin: 0, lineHeight: "1.6" },
+  reflectionText: { color: "var(--color-text)", lineHeight: "1.8", margin: 0, fontStyle: "italic", fontSize: "1rem" },
+  reflectionLoading: { color: "var(--color-text)", opacity: 0.45, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
+  reflectionFallback: { color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
   back: {
     padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
     border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",

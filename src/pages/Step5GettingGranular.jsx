@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
+import { fetchReflection } from "../lib/reflect";
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
@@ -12,6 +13,8 @@ export default function Step5GettingGranular() {
   // phases: "intro1" | "intro2" | "domain" | "lookback" | "reflection"
   const [phase, setPhase] = useState("intro1");
   const [domainIndex, setDomainIndex] = useState(0);
+  const [reflectionText, setReflectionText] = useState(null);
+  const [reflectionLoading, setReflectionLoading] = useState(false);
 
   const activeDomains = (journey.domains.length > 0 ? journey.domains : journey.allDomains).filter(
     (d) => d.trim() !== ""
@@ -60,13 +63,16 @@ export default function Step5GettingGranular() {
         }
       >
         <StepNav current={5} />
-        <div style={styles.placeholder}>
-          <span style={styles.placeholderLabel}>AI reflection placeholder</span>
-          <p style={styles.placeholderText}>
-            [AI reflection appears here. Does what the user committed to actually address what
-            they diagnosed? One to two sentences per domain. One closing sentence specific to
-            this person. Honest, not a cheerleader.]
-          </p>
+        <div style={styles.reflectionBox}>
+          {reflectionLoading ? (
+            <p style={styles.reflectionLoading}>Reading your commitments...</p>
+          ) : reflectionText ? (
+            <p style={styles.reflectionText}>{reflectionText}</p>
+          ) : (
+            <p style={styles.reflectionFallback}>
+              Read back what you committed to. Do they address what you named?
+            </p>
+          )}
         </div>
 
         <ReflectionResponse
@@ -92,7 +98,31 @@ export default function Step5GettingGranular() {
             >
               Back to editing
             </button>
-            <button onClick={() => setPhase("reflection")} style={styles.next}>Continue</button>
+            <button
+              onClick={() => {
+                setPhase("reflection");
+                setReflectionLoading(true);
+                fetchReflection("step5", {
+                  northStarFeeling: journey.northStarFeeling,
+                  domains: activeDomains.map((domain, i) => {
+                    const diag = journey.coherenceDiagnostic[i] || {};
+                    return {
+                      domain,
+                      gap: diag.gap,
+                      barriers: diag.barriers,
+                      barrierNotes: diag.barrierNotes,
+                      commitments: (journey.commitments[i]?.items || []).filter((c) => c.trim()),
+                    };
+                  }),
+                }).then((text) => {
+                  setReflectionText(text);
+                  setReflectionLoading(false);
+                });
+              }}
+              style={styles.next}
+            >
+              Continue
+            </button>
           </>
         }
       >
@@ -248,6 +278,17 @@ export default function Step5GettingGranular() {
 }
 
 const styles = {
+  reflectionBox: {
+    background: "rgba(94,15,61,0.04)",
+    border: "1px solid rgba(94,15,61,0.18)",
+    borderRadius: "6px",
+    padding: "1.25rem 1.5rem",
+    marginBottom: "1.5rem",
+    minHeight: "4rem",
+  },
+  reflectionText: { color: "var(--color-text)", lineHeight: "1.8", margin: 0, fontStyle: "italic", fontSize: "1rem" },
+  reflectionLoading: { color: "var(--color-text)", opacity: 0.45, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
+  reflectionFallback: { color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
   transition: {
     background: "rgba(228,74,36,0.06)",
     border: "1px solid rgba(228,74,36,0.2)",

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
+import { fetchReflection } from "../lib/reflect";
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
@@ -18,6 +19,8 @@ export default function Step4CoherenceDiagnostic() {
   const navigate = useNavigate();
   const [phase, setPhase] = useState("intro"); // "intro" | "domain" | "reflection"
   const [domainIndex, setDomainIndex] = useState(0);
+  const [reflectionText, setReflectionText] = useState(null);
+  const [reflectionLoading, setReflectionLoading] = useState(false);
 
   const activeDomains = (journey.domains.length > 0 ? journey.domains : journey.allDomains).filter(
     (d) => d.trim() !== ""
@@ -51,6 +54,17 @@ export default function Step4CoherenceDiagnostic() {
       setDomainIndex(domainIndex + 1);
     } else {
       setPhase("reflection");
+      setReflectionLoading(true);
+      fetchReflection("step4", {
+        northStarFeeling: journey.northStarFeeling,
+        domains: activeDomains.map((domain, i) => {
+          const diag = journey.coherenceDiagnostic[i] || {};
+          return { domain, gap: diag.gap, barriers: diag.barriers, barrierNotes: diag.barrierNotes };
+        }),
+      }).then((text) => {
+        setReflectionText(text);
+        setReflectionLoading(false);
+      });
     }
   }
 
@@ -95,13 +109,16 @@ export default function Step4CoherenceDiagnostic() {
         }
       >
         <StepNav current={4} rampT={RAMP_DOMAIN} />
-        <div style={styles.placeholder}>
-          <span style={styles.placeholderLabel}>AI reflection placeholder</span>
-          <p style={styles.placeholderText}>
-            [AI reflection appears here. Domain by domain, one to two sentences each, naming
-            the gap and barrier as the user described them, reflected back with warmth and without
-            judgment. One closing sentence on the overall pattern across domains.]
-          </p>
+        <div style={styles.reflectionBox}>
+          {reflectionLoading ? (
+            <p style={styles.reflectionLoading}>Reading what you shared...</p>
+          ) : reflectionText ? (
+            <p style={styles.reflectionText}>{reflectionText}</p>
+          ) : (
+            <p style={styles.reflectionFallback}>
+              Read back what you named. What pattern do you see across all of it?
+            </p>
+          )}
         </div>
 
         <ReflectionResponse
@@ -187,6 +204,17 @@ export default function Step4CoherenceDiagnostic() {
 }
 
 const styles = {
+  reflectionBox: {
+    background: "rgba(94,15,61,0.04)",
+    border: "1px solid rgba(94,15,61,0.18)",
+    borderRadius: "6px",
+    padding: "1.25rem 1.5rem",
+    marginBottom: "1.5rem",
+    minHeight: "4rem",
+  },
+  reflectionText: { color: "var(--color-text)", lineHeight: "1.8", margin: 0, fontStyle: "italic", fontSize: "1rem" },
+  reflectionLoading: { color: "var(--color-text)", opacity: 0.45, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
+  reflectionFallback: { color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
   pacingLine: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", marginBottom: "0.5rem", fontSize: "0.95rem", lineHeight: "1.5" },
   narrowingNudge: {
     background: "rgba(228,74,36,0.06)",
