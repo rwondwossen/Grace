@@ -1,6 +1,17 @@
 import { useNavigate } from "react-router-dom";
 import Shell from "../components/Shell";
 
+const STEPS = [
+  "Provocation — a set of powerful quotes to reflect on, to get your ideation going",
+  "The Feeling Question — one year from now, what do you want to feel",
+  "The Buckets — the categories of life that will support that feeling",
+  "The Coherence Diagnostic — the gap between what you want and where you actually stand",
+  "Getting Granular — planning the details",
+  "Planning for the Drift — life happens, plan for the setback",
+  "The Clarity Doc — the culmination of your work",
+  "Closing Reflection",
+];
+
 export default function Intro() {
   const navigate = useNavigate();
 
@@ -13,51 +24,70 @@ export default function Intro() {
         </button>
       }
     >
+      <p style={styles.eyebrow}>Grace is early.</p>
       <p style={styles.lead}>
         Most people spend more time planning a vacation than they spend on the year itself.
         Grace is an hour to do something different.
       </p>
-      <p style={styles.body}>
-        You'll start with a single question: one year from now, what do you want to feel?
-        Not what you want to achieve. What you want to feel. From there, you'll name the
-        areas of your life that would most support that feeling, look honestly at where
-        things actually stand, and make a small set of commitments that are real enough
-        to keep.
-      </p>
-      <p style={styles.body}>
-        At the end, you'll have a Clarity Document. One page. Everything you named, in
-        one place. Something to put on a wall, return to when things get noisy, and use
-        to remind yourself what you decided mattered.
-      </p>
+
+      <ul style={styles.stepList}>
+        {STEPS.map((step, i) => (
+          <li key={i} style={styles.stepItem}>
+            <span style={styles.check}>&#10003;</span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ul>
+
       <p style={styles.coda}>
-        You don't need to have it figured out. That's the point of doing this.
+        At the end, you'll have a document worth putting on a wall, something to return to
+        when things get noisy, to remind yourself what you decided mattered.
       </p>
     </Shell>
   );
 }
 
 const styles = {
+  eyebrow: {
+    fontSize: "0.8rem",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    color: "var(--color-text)",
+    opacity: 0.45,
+    marginBottom: "0.75rem",
+  },
   lead: {
     fontFamily: "var(--font-serif)",
-    fontSize: "1.2rem",
+    fontSize: "1.15rem",
     lineHeight: "1.7",
     color: "var(--color-text)",
-    marginBottom: "1.5rem",
+    marginBottom: "1.75rem",
     fontStyle: "italic",
   },
-  body: {
+  stepList: {
+    listStyle: "none",
+    padding: 0,
+    margin: "0 0 1.75rem",
+  },
+  stepItem: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: "0.6rem",
     color: "var(--color-text)",
-    lineHeight: "1.8",
-    marginBottom: "1.25rem",
-    fontSize: "1rem",
-    opacity: 0.9,
+    fontSize: "0.95rem",
+    lineHeight: "1.7",
+    opacity: 0.85,
+  },
+  check: {
+    color: "var(--color-accent)",
+    flexShrink: 0,
+    fontSize: "0.85rem",
   },
   coda: {
     color: "var(--color-text)",
     lineHeight: "1.7",
     opacity: 0.65,
     fontSize: "0.95rem",
-    marginTop: "0.5rem",
     fontStyle: "italic",
   },
   next: {
