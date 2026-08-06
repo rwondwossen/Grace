@@ -44,6 +44,7 @@ export default function Step7ClarityDocument() {
           const comms = journey.commitments[i]?.items?.filter((c) => c.trim() !== "") || [];
           return (
             <div key={i} style={styles.domainSection}>
+              <div style={styles.domainNumber}>Domain {i + 1} of {activeDomains.length}</div>
               <h3 style={styles.domainTitle}>{domain}</h3>
               <div style={styles.diagBlock}>
                 <div style={styles.diagLabel}>What it looks like now</div>
@@ -82,6 +83,7 @@ const styles = {
   nsLabel: { fontSize: "0.85rem", color: "var(--color-text)", opacity: 0.6, marginBottom: "0.4rem", textTransform: "uppercase", letterSpacing: "0.05em" },
   nsWord: { fontFamily: "var(--font-serif)", fontSize: "2.1rem", fontWeight: 600, color: "var(--color-gold)" },
   domainSection: { marginBottom: "1.75rem", paddingBottom: "1.75rem", borderBottom: "1px solid rgba(94,15,61,0.12)" },
+  domainNumber: { fontSize: "0.75rem", color: "var(--color-text)", opacity: 0.45, marginBottom: "0.2rem", textTransform: "uppercase", letterSpacing: "0.05em" },
   domainTitle: { fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: 600, color: "var(--color-plum)", marginBottom: "0.75rem" },
   diagBlock: { marginBottom: "0.75rem" },
   diagLabel: { fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--color-text)", opacity: 0.55, marginBottom: "0.2rem" },

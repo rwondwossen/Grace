@@ -151,7 +151,7 @@ export default function Step4CoherenceDiagnostic() {
       }
     >
       <StepNav current={4} rampT={RAMP_DOMAIN} />
-      <p style={styles.domainCount}>{domainIndex + 1} of {activeDomains.length}</p>
+      <p style={styles.domainCount}>Domain {domainIndex + 1} of {activeDomains.length}</p>
       <h3 style={styles.domainName}>{domain}</h3>
 
       <p style={styles.pacingLine}>

@@ -190,7 +190,7 @@ export default function Step5GettingGranular() {
         }
       >
         <StepNav current={5} />
-        <p style={styles.domainCount}>{domainIndex + 1} of {activeDomains.length}</p>
+        <p style={styles.domainCount}>Domain {domainIndex + 1} of {activeDomains.length}</p>
         <h3 style={styles.domainName}>{domain}</h3>
         {current.items.map((item, j) => (
           <input
