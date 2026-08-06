@@ -2,14 +2,14 @@ import { useNavigate } from "react-router-dom";
 import Shell from "../components/Shell";
 
 const STEPS = [
-  "Provocation — a set of powerful quotes to reflect on, to get your ideation going",
-  "The Feeling Question — one year from now, what do you want to feel",
-  "The Buckets — the categories of life that will support that feeling",
-  "The Coherence Diagnostic — the gap between what you want and where you actually stand",
-  "Getting Granular — planning the details",
-  "Planning for the Drift — life happens, plan for the setback",
-  "The Clarity Doc — the culmination of your work",
-  "Closing Reflection",
+  ["Provocation", "a set of powerful quotes to reflect on, to get your ideation going"],
+  ["The Feeling Question", "one year from now, what do you want to feel"],
+  ["The Buckets", "the categories of life that will support that feeling"],
+  ["The Coherence Diagnostic", "the gap between what you want and where you stand"],
+  ["Getting Granular", "planning the details"],
+  ["Planning for the Drift", "life happens, plan for the setback"],
+  ["The Clarity Doc", "the culmination of your work"],
+  ["Closing Reflection", null],
 ];
 
 export default function Intro() {
@@ -24,17 +24,24 @@ export default function Intro() {
         </button>
       }
     >
-      <p style={styles.eyebrow}>Grace is early.</p>
+      <p style={styles.earlyNote}>
+        <strong>GRACE IS EARLY:</strong> you're testing an early version. Some steps that are
+        meant to reflect back what you shared won't do that yet.
+      </p>
+
       <p style={styles.lead}>
         Most people spend more time planning a vacation than they spend on the year itself.
         Grace is an hour to do something different.
       </p>
 
       <ul style={styles.stepList}>
-        {STEPS.map((step, i) => (
+        {STEPS.map(([name, desc], i) => (
           <li key={i} style={styles.stepItem}>
             <span style={styles.check}>&#10003;</span>
-            <span>{step}</span>
+            <span>
+              <strong>{name}</strong>
+              {desc ? <span style={styles.desc}>: {desc}</span> : null}
+            </span>
           </li>
         ))}
       </ul>
@@ -48,20 +55,19 @@ export default function Intro() {
 }
 
 const styles = {
-  eyebrow: {
-    fontSize: "0.8rem",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
+  earlyNote: {
+    fontSize: "0.88rem",
     color: "var(--color-text)",
-    opacity: 0.45,
-    marginBottom: "0.75rem",
+    opacity: 0.5,
+    lineHeight: "1.6",
+    marginBottom: "1.5rem",
   },
   lead: {
     fontFamily: "var(--font-serif)",
     fontSize: "1.15rem",
     lineHeight: "1.7",
     color: "var(--color-text)",
-    marginBottom: "1.75rem",
+    marginBottom: "1.5rem",
     fontStyle: "italic",
   },
   stepList: {
@@ -74,14 +80,17 @@ const styles = {
     alignItems: "baseline",
     gap: "0.6rem",
     color: "var(--color-text)",
-    fontSize: "0.95rem",
-    lineHeight: "1.7",
-    opacity: 0.85,
+    fontSize: "0.92rem",
+    lineHeight: "1.75",
   },
   check: {
     color: "var(--color-accent)",
     flexShrink: 0,
     fontSize: "0.85rem",
+  },
+  desc: {
+    fontWeight: 400,
+    opacity: 0.8,
   },
   coda: {
     color: "var(--color-text)",
