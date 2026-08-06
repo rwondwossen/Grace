@@ -34,7 +34,8 @@ export default function Step4CoherenceDiagnostic() {
   }
 
   function toggleBarrier(i, barrier) {
-    const current = diagnostic[i].barriers || [];
+    const entry = diagnostic[i] || { gap: "", barriers: [], barrierNotes: "" };
+    const current = Array.isArray(entry.barriers) ? entry.barriers : [];
     const next = current.includes(barrier)
       ? current.filter((b) => b !== barrier)
       : [...current, barrier];
@@ -42,7 +43,8 @@ export default function Step4CoherenceDiagnostic() {
   }
 
   const current = diagnostic[domainIndex] || { gap: "", barriers: [], barrierNotes: "" };
-  const canAdvanceDomain = current.gap.trim() !== "" && (current.barriers.length > 0 || current.barrierNotes.trim() !== "");
+  const currentBarriers = Array.isArray(current.barriers) ? current.barriers : [];
+  const canAdvanceDomain = current.gap.trim() !== "" && (currentBarriers.length > 0 || current.barrierNotes.trim() !== "");
 
   function handleDomainNext() {
     if (domainIndex < activeDomains.length - 1) {
@@ -152,7 +154,7 @@ export default function Step4CoherenceDiagnostic() {
       <label style={styles.label}>What is standing in the way?</label>
       <div style={styles.barrierOptions}>
         {BARRIER_OPTIONS.map((opt) => {
-          const selected = (current.barriers || []).includes(opt);
+          const selected = currentBarriers.includes(opt);
           return (
             <button
               key={opt}
@@ -165,7 +167,7 @@ export default function Step4CoherenceDiagnostic() {
         })}
       </div>
 
-      {(current.barriers || []).length > 3 && (
+      {currentBarriers.length > 3 && (
         <p style={styles.narrowingNudge}>
           You've named several things getting in the way. Which one or two are doing the most work?
           Moving on one or two real barriers tends to open more than spreading attention across all of them.

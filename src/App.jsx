@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { JourneyProvider } from "./context/JourneyContext";
+import Intro from "./pages/Intro";
 import Step1Provocation from "./pages/Step1Provocation";
 import Step2FeelingQuestion from "./pages/Step2FeelingQuestion";
 import Step3Buckets from "./pages/Step3Buckets";
@@ -14,7 +15,7 @@ export default function App() {
     <JourneyProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Navigate to="/step/1" replace />} />
+          <Route path="/" element={<Intro />} />
           <Route path="/step/1" element={<Step1Provocation />} />
           <Route path="/step/2" element={<Step2FeelingQuestion />} />
           <Route path="/step/3" element={<Step3Buckets />} />
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/step/6" element={<Step6Accountability />} />
           <Route path="/step/7" element={<Step7ClarityDocument />} />
           <Route path="/step/8" element={<Step8ClosingReflection />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </JourneyProvider>

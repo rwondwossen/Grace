@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
 import { submitJourneyToAirtable } from "../lib/airtable";
+
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
 
 export default function Step8ClosingReflection() {
-  const { journey, update } = useJourney();
+  const { journey, update, reset } = useJourney();
   const navigate = useNavigate();
   const [status, setStatus] = useState("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -25,6 +26,11 @@ export default function Step8ClosingReflection() {
     }
   }
 
+  function handleFinish() {
+    reset();
+    navigate("/");
+  }
+
   if (status === "done") {
     return (
       <Shell title="You're done.">
@@ -32,9 +38,14 @@ export default function Step8ClosingReflection() {
           Your Clarity Document is saved. Come back to it whenever you need a reminder of what
           you named and why it matters.
         </p>
-        <button onClick={() => navigate("/step/7")} style={styles.next}>
-          Back to your Clarity Document
-        </button>
+        <div style={styles.doneButtons}>
+          <button onClick={() => navigate("/step/7")} style={styles.back}>
+            Back to your Clarity Document
+          </button>
+          <button onClick={handleFinish} style={styles.next}>
+            Close
+          </button>
+        </div>
       </Shell>
     );
   }
@@ -141,5 +152,6 @@ const styles = {
     border: "none", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",
   },
   nextDisabled: { background: "rgba(44,35,29,0.25)", cursor: "not-allowed" },
-  doneText: { color: "var(--color-text)", opacity: 0.8, marginBottom: "2rem", lineHeight: "1.7" },
+  doneText: { color: "var(--color-text)", opacity: 0.8, marginBottom: "1.5rem", lineHeight: "1.7" },
+  doneButtons: { display: "flex", gap: "1rem", flexWrap: "wrap" },
 };
