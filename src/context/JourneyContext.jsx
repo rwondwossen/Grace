@@ -35,8 +35,7 @@ const DEFAULT_STATE = {
 
   // Step 5
   commitments: [],
-  step5ReflectionResonance: "",
-  step5ReflectionNote: "",
+  step5DomainNotes: [],
 
   // Step 6 (Accountability)
   driftChip: "",

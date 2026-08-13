@@ -4,8 +4,9 @@ import { useJourney } from "../context/JourneyContext";
 import { fetchReflection } from "../lib/reflect";
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
-import ReflectionResponse from "../components/ReflectionResponse";
 import NorthStarWord from "../components/NorthStarWord";
+
+const FALLBACK_REFLECTION = "Take a look at what you committed to. Does it feel like it responds to what you named?";
 
 export default function Step5GettingGranular() {
   const { journey, update } = useJourney();
@@ -13,7 +14,8 @@ export default function Step5GettingGranular() {
   // phases: "intro1" | "intro2" | "domain" | "lookback" | "reflection"
   const [phase, setPhase] = useState("intro1");
   const [domainIndex, setDomainIndex] = useState(0);
-  const [reflectionText, setReflectionText] = useState(null);
+  const [reflectionDomainIndex, setReflectionDomainIndex] = useState(0);
+  const [reflections, setReflections] = useState(null); // object keyed by domain name
   const [reflectionLoading, setReflectionLoading] = useState(false);
 
   const activeDomains = (journey.domains.length > 0 ? journey.domains : journey.allDomains).filter(
@@ -28,6 +30,12 @@ export default function Step5GettingGranular() {
     const next = commitments.map((c) => ({ ...c, items: [...c.items] }));
     next[domainIdx].items[itemIdx] = val;
     update({ commitments: next });
+  }
+
+  function setDomainNote(domainIdx, val) {
+    const next = [...(journey.step5DomainNotes || [])];
+    next[domainIdx] = val;
+    update({ step5DomainNotes: next });
   }
 
   const current = commitments[domainIndex] || { items: ["", "", ""] };
@@ -51,37 +59,116 @@ export default function Step5GettingGranular() {
     }
   }
 
+  function enterReflection() {
+    setPhase("reflection");
+    setReflectionDomainIndex(0);
+    setReflectionLoading(true);
+    fetchReflection("step5", {
+      northStarFeeling: journey.northStarFeeling,
+      domains: activeDomains.map((domain, i) => {
+        const diag = journey.coherenceDiagnostic[i] || {};
+        return {
+          domain,
+          gap: diag.gap,
+          barriers: diag.barriers,
+          barrierNotes: diag.barrierNotes,
+          commitments: (journey.commitments[i]?.items || []).filter((c) => c.trim()),
+        };
+      }),
+    }).then((result) => {
+      setReflections(result);
+      setReflectionLoading(false);
+    });
+  }
+
   if (phase === "reflection") {
+    const domain = activeDomains[reflectionDomainIndex];
+    const diag = journey.coherenceDiagnostic[reflectionDomainIndex] || {};
+    const domainCommitments = (journey.commitments[reflectionDomainIndex]?.items || []).filter((c) => c.trim());
+    const barriers = [
+      ...(Array.isArray(diag.barriers) ? diag.barriers : []),
+      diag.barrierNotes,
+    ].filter(Boolean).join(", ");
+    const aiText = reflectionLoading ? null : (reflections && reflections[domain]) || null;
+    const noteVal = (journey.step5DomainNotes || [])[reflectionDomainIndex] || "";
+    const isLastCard = reflectionDomainIndex === activeDomains.length - 1;
+
     return (
       <Shell
         title="Getting Granular"
         footer={
           <>
-            <button onClick={() => setPhase("lookback")} style={styles.back}>Back</button>
-            <button onClick={() => navigate("/step/6")} style={styles.next}>Continue</button>
+            <button
+              onClick={() => {
+                if (reflectionDomainIndex > 0) setReflectionDomainIndex(reflectionDomainIndex - 1);
+                else setPhase("lookback");
+              }}
+              style={styles.back}
+            >
+              Back
+            </button>
+            <button
+              onClick={() => {
+                if (!isLastCard) setReflectionDomainIndex(reflectionDomainIndex + 1);
+                else navigate("/step/6");
+              }}
+              style={styles.next}
+            >
+              {isLastCard ? "Continue" : "Next"}
+            </button>
           </>
         }
       >
         <StepNav current={5} />
-        <div style={styles.reflectionBox}>
-          {reflectionLoading ? (
-            <p style={styles.reflectionLoading}>Reading your commitments...</p>
-          ) : reflectionText ? (
-            <p style={styles.reflectionText}>{reflectionText}</p>
-          ) : (
-            <p style={styles.reflectionFallback}>
-              Read back what you committed to. Do they address what you named?
-            </p>
+        <p style={styles.cardCount}>{reflectionDomainIndex + 1} of {activeDomains.length}</p>
+
+        <div style={styles.card}>
+          <h3 style={styles.cardDomain}>{domain}</h3>
+
+          {diag.gap && (
+            <div style={styles.cardRow}>
+              <span style={styles.cardLabel}>What's true right now</span>
+              <p style={styles.cardText}>{diag.gap}</p>
+            </div>
           )}
+
+          {barriers && (
+            <div style={styles.cardRow}>
+              <span style={styles.cardLabel}>What's been in the way</span>
+              <p style={styles.cardText}>{barriers}</p>
+            </div>
+          )}
+
+          {domainCommitments.length > 0 && (
+            <div style={styles.cardRow}>
+              <span style={styles.cardLabel}>What you committed to</span>
+              <ul style={styles.commitList}>
+                {domainCommitments.map((c, j) => <li key={j}>{c}</li>)}
+              </ul>
+            </div>
+          )}
+
+          <div style={styles.feedbackRow}>
+            {reflectionLoading ? (
+              <p style={styles.feedbackLoading}>Reading your commitments...</p>
+            ) : aiText ? (
+              <p style={styles.feedbackText}>{aiText}</p>
+            ) : (
+              <p style={styles.feedbackFallback}>{FALLBACK_REFLECTION}</p>
+            )}
+          </div>
         </div>
 
-        <ReflectionResponse
-          resonance={journey.step5ReflectionResonance}
-          note={journey.step5ReflectionNote}
-          onResonance={(val) => update({ step5ReflectionResonance: val })}
-          onNote={(val) => update({ step5ReflectionNote: val })}
-          yesAck="No need to do anything with that yet. Just notice it."
-        />
+        <div style={styles.noteBlock}>
+          <label style={styles.noteLabel}>What's surfacing for you on this one?</label>
+          <textarea
+            style={styles.noteField}
+            placeholder="Anything you're noticing..."
+            value={noteVal}
+            onChange={(e) => setDomainNote(reflectionDomainIndex, e.target.value)}
+            rows={3}
+          />
+        </div>
       </Shell>
     );
   }
@@ -98,31 +185,7 @@ export default function Step5GettingGranular() {
             >
               Back to editing
             </button>
-            <button
-              onClick={() => {
-                setPhase("reflection");
-                setReflectionLoading(true);
-                fetchReflection("step5", {
-                  northStarFeeling: journey.northStarFeeling,
-                  domains: activeDomains.map((domain, i) => {
-                    const diag = journey.coherenceDiagnostic[i] || {};
-                    return {
-                      domain,
-                      gap: diag.gap,
-                      barriers: diag.barriers,
-                      barrierNotes: diag.barrierNotes,
-                      commitments: (journey.commitments[i]?.items || []).filter((c) => c.trim()),
-                    };
-                  }),
-                }).then((text) => {
-                  setReflectionText(text);
-                  setReflectionLoading(false);
-                });
-              }}
-              style={styles.next}
-            >
-              Continue
-            </button>
+            <button onClick={enterReflection} style={styles.next}>Continue</button>
           </>
         }
       >
@@ -278,17 +341,43 @@ export default function Step5GettingGranular() {
 }
 
 const styles = {
-  reflectionBox: {
-    background: "rgba(94,15,61,0.04)",
+  cardCount: { fontSize: "0.8rem", color: "var(--color-text)", opacity: 0.5, marginBottom: "0.75rem" },
+  card: {
     border: "1px solid rgba(94,15,61,0.18)",
-    borderRadius: "6px",
+    borderRadius: "8px",
     padding: "1.25rem 1.5rem",
-    marginBottom: "1.5rem",
-    minHeight: "4rem",
+    marginBottom: "1.25rem",
+    background: "rgba(94,15,61,0.03)",
   },
-  reflectionText: { color: "var(--color-text)", lineHeight: "1.8", margin: 0, fontStyle: "italic", fontSize: "1rem" },
-  reflectionLoading: { color: "var(--color-text)", opacity: 0.45, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
-  reflectionFallback: { color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
+  cardDomain: {
+    fontFamily: "var(--font-serif)", fontSize: "1.2rem", fontWeight: 600,
+    color: "var(--color-accent-deep)", marginBottom: "1rem",
+  },
+  cardRow: { marginBottom: "0.75rem" },
+  cardLabel: {
+    display: "block", fontSize: "0.72rem", textTransform: "uppercase",
+    letterSpacing: "0.06em", color: "var(--color-text)", opacity: 0.45, marginBottom: "0.2rem",
+  },
+  cardText: { margin: 0, fontSize: "0.92rem", color: "var(--color-text)", lineHeight: "1.6" },
+  commitList: {
+    margin: 0, paddingLeft: "1.25rem", fontSize: "0.92rem",
+    color: "var(--color-text)", lineHeight: "1.7",
+  },
+  feedbackRow: {
+    marginTop: "1rem",
+    paddingTop: "1rem",
+    borderTop: "1px solid rgba(94,15,61,0.12)",
+  },
+  feedbackLoading: { margin: 0, fontSize: "0.88rem", color: "var(--color-text)", opacity: 0.4, fontStyle: "italic" },
+  feedbackText: { margin: 0, fontSize: "0.95rem", color: "var(--color-plum)", fontStyle: "italic", lineHeight: "1.7" },
+  feedbackFallback: { margin: 0, fontSize: "0.9rem", color: "var(--color-text)", opacity: 0.6, fontStyle: "italic" },
+  noteBlock: {},
+  noteLabel: { display: "block", fontWeight: 600, marginBottom: "0.4rem", color: "var(--color-text)" },
+  noteField: {
+    width: "100%", padding: "0.65rem", fontSize: "0.95rem",
+    border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
+    boxSizing: "border-box", resize: "vertical", background: "#fff",
+  },
   transition: {
     background: "rgba(228,74,36,0.06)",
     border: "1px solid rgba(228,74,36,0.2)",
@@ -348,18 +437,6 @@ const styles = {
     marginBottom: "0.5rem", boxSizing: "border-box", background: "#fff",
   },
   reviewInputEmpty: { borderColor: "rgba(44,35,29,0.12)", color: "rgba(44,35,29,0.4)" },
-  placeholder: {
-    background: "rgba(44,35,29,0.04)",
-    border: "1.5px dashed rgba(44,35,29,0.3)",
-    borderRadius: "6px",
-    padding: "1.25rem",
-    marginBottom: "0.5rem",
-  },
-  placeholderLabel: {
-    display: "block", fontSize: "0.7rem", textTransform: "uppercase",
-    letterSpacing: "0.08em", color: "var(--color-text)", opacity: 0.5, marginBottom: "0.5rem",
-  },
-  placeholderText: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", margin: 0, lineHeight: "1.6" },
   back: {
     padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
     border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",

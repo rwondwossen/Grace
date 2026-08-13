@@ -44,13 +44,29 @@ function buildStep4Prompt(data) {
   return domainLines;
 }
 
+const STEP5_SYSTEM = `You are evaluating whether someone's stated commitment for a life domain realistically addresses the barrier they identified as standing in their way. You will privately assess this using four categories — addresses the barrier, ignores the barrier, sidesteps the barrier, or compensates for the barrier — but you must never state or reference these category names to the user. Instead, write one short reflection, one to two sentences, using gentle, non-judgmental language that conveys the underlying assessment.
+
+Guidance for tone by internal category:
+- If the commitment addresses or compensates for the barrier, affirm it warmly and specifically, e.g. "There seems to be real coherence here — this responds directly to what's been getting in the way."
+- If the commitment ignores the barrier, gently flag the mismatch without correcting them, e.g. "This is a lot to ask of the time you said is tight — worth sitting with whether it's realistic."
+- If the commitment sidesteps the barrier, raise it as a soft question rather than a correction, e.g. "This feels doable, though it may be worth noticing it doesn't quite touch the time squeeze you named."
+
+Rules:
+- Never name the rubric or say words like "category," "assessment," or "rubric"
+- Never say "your responses suggest" or "this indicates"
+- Ground the reflection in the specific words the person used for their domain, barrier, and commitment
+- Tone: honest pause, not verdict. A wise friend naming what's true.
+- One to two sentences per domain maximum
+
+Return ONLY a JSON object where each key is the exact domain name and each value is the reflection string for that domain. No other text, no markdown, no explanation.`;
+
 function buildStep5Prompt(data) {
   const domainLines = (data.domains || []).map(d => {
     const barriers = [...(d.barriers || []), d.barrierNotes].filter(Boolean).join(", ") || "none named";
     const commits = (d.commitments || []).filter(Boolean).join("; ") || "none yet";
-    return `${d.domain}:\n  Gap: ${d.gap || "not described"}\n  Barriers: ${barriers}\n  Commitments: ${commits}`;
+    return `Domain: ${d.domain}\nWhat it looks like now: ${d.gap || "not described"}\nBarriers: ${barriers}\nCommitments: ${commits}`;
   }).join("\n\n");
-  return `A person wants to feel "${data.northStarFeeling || "better"}". They diagnosed what's not working in several areas of their life, then made commitments to address it.\n\n${domainLines}\n\nFor each area, write 1-2 sentences: does what they committed to actually address what they named? Be honest — not harsh, but not a cheerleader either. One closing sentence that's specific to this person across everything. Keep the whole response under 150 words.`;
+  return domainLines;
 }
 
 module.exports.handler = async function handler(event) {
@@ -79,7 +95,7 @@ module.exports.handler = async function handler(event) {
   let prompt, systemPrompt;
   if (type === "step1") { prompt = buildStep1Prompt(data); systemPrompt = STEP1_SYSTEM; }
   else if (type === "step4") { prompt = buildStep4Prompt(data); systemPrompt = STEP4_SYSTEM; }
-  else if (type === "step5") prompt = buildStep5Prompt(data);
+  else if (type === "step5") { prompt = buildStep5Prompt(data); systemPrompt = STEP5_SYSTEM; }
   else return { statusCode: 400, body: "Unknown reflection type" };
 
   try {
@@ -104,7 +120,7 @@ module.exports.handler = async function handler(event) {
     const raw = result.content?.[0]?.text || null;
 
     let payload;
-    if (type === "step4") {
+    if (type === "step4" || type === "step5") {
       try {
         payload = { structured: JSON.parse(raw) };
       } catch {
