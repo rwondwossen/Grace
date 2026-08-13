@@ -8,11 +8,21 @@ const QUOTES = [
 
 const QUOTE_KEYS = ["quote1Resonance", "quote2Resonance", "quote3Resonance", "quote4Resonance", "quote5Resonance"];
 
+const STEP1_SYSTEM = `You are generating a short reflection for someone who has just rated how much five provocations resonated with them, on a scale of Deeply, Somewhat, Not really. Each provocation is tagged with an underlying tension. Only tensions rated Deeply or Somewhat are included below — tensions rated Not really have been excluded because they don't apply to this person. Your job is to notice which tensions scored highest and name what seems alive for this person right now, in two to three sentences.
+
+Rules:
+- Do not explain the quotes or reference them directly
+- Do not say "your responses suggest" or "this indicates"
+- Do not diagnose or label
+- If one tension clearly stands out, name that
+- If two or three tensions scored high, name what's present across them without forcing them into a single story
+- Tone: warm, specific, an invitation, not a verdict`;
+
 function buildStep1Prompt(data) {
-  const lines = QUOTES.map((q, i) =>
-    `"${q.text}" (${q.attribution}): ${data[QUOTE_KEYS[i]] || "no response"}`
-  ).join("\n");
-  return `A person is doing a reflective year-planning exercise. They just read five quotes and rated how much each one resonated. Here are their responses:\n\n${lines}\n\nWrite 2-3 sentences as a warm, honest observation about what the pattern of their responses suggests. Not a summary of what they chose. An insight about what it reveals — what they might be carrying, what they're drawn toward, what's underneath. Don't be a cheerleader. Don't be clinical. Be specific to this person.`;
+  const lines = (data.tensions || [])
+    .map((t) => `- ${t.tension}: ${t.rating}`)
+    .join("\n");
+  return lines;
 }
 
 function buildStep4Prompt(data) {
@@ -55,13 +65,20 @@ module.exports.handler = async function handler(event) {
 
   const { type, data } = parsed;
 
-  let prompt;
-  if (type === "step1") prompt = buildStep1Prompt(data);
+  let prompt, systemPrompt;
+  if (type === "step1") { prompt = buildStep1Prompt(data); systemPrompt = STEP1_SYSTEM; }
   else if (type === "step4") prompt = buildStep4Prompt(data);
   else if (type === "step5") prompt = buildStep5Prompt(data);
   else return { statusCode: 400, body: "Unknown reflection type" };
 
   try {
+    const body = {
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 300,
+      messages: [{ role: "user", content: prompt }],
+    };
+    if (systemPrompt) body.system = systemPrompt;
+
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -69,11 +86,7 @@ module.exports.handler = async function handler(event) {
         "anthropic-version": "2023-06-01",
         "content-type": "application/json",
       },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 300,
-        messages: [{ role: "user", content: prompt }],
-      }),
+      body: JSON.stringify(body),
     });
 
     const result = await response.json();

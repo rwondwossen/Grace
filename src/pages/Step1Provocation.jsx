@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
 import { fetchReflection } from "../lib/reflect";
@@ -7,34 +7,23 @@ import StepNav from "../components/StepNav";
 import ReflectionResponse from "../components/ReflectionResponse";
 
 const QUOTES = [
-  {
-    key: "quote1Resonance",
-    text: "The things that make you feel most alive are often the things you are neglecting.",
-    attribution: "Parker J. Palmer",
-  },
-  {
-    key: "quote2Resonance",
-    text: "I am large, I contain multitudes.",
-    attribution: "Walt Whitman",
-  },
-  {
-    key: "quote3Resonance",
-    text: "If I didn't define myself for myself, I would be crunched into other people's fantasies for me and eaten alive.",
-    attribution: "Audre Lorde",
-  },
-  {
-    key: "quote4Resonance",
-    text: "You are your best thing.",
-    attribution: "Toni Morrison",
-  },
-  {
-    key: "quote5Resonance",
-    text: "Beware the barrenness of a busy life.",
-    attribution: "Socrates",
-  },
+  { key: "quote1Resonance", text: "The things that make you feel most alive are often the things you are neglecting.", attribution: "Parker J. Palmer" },
+  { key: "quote2Resonance", text: "I am large, I contain multitudes.", attribution: "Walt Whitman" },
+  { key: "quote3Resonance", text: "If I didn't define myself for myself, I would be crunched into other people's fantasies for me and eaten alive.", attribution: "Audre Lorde" },
+  { key: "quote4Resonance", text: "You are your best thing.", attribution: "Toni Morrison" },
+  { key: "quote5Resonance", text: "Beware the barrenness of a busy life.", attribution: "Socrates" },
+];
+
+const TENSIONS = [
+  "neglected joy",
+  "pulled in contradictory directions",
+  "clarifying self against being othered",
+  "self-neglect through responsibility",
+  "illusion of busyness",
 ];
 
 const RESONANCE_OPTIONS = ["Deeply", "Somewhat", "Not really"];
+const FALLBACK = "What's standing out for you right now?";
 
 export default function Step1Provocation() {
   const { journey, update, reset } = useJourney();
@@ -43,13 +32,43 @@ export default function Step1Provocation() {
   const [phase, setPhase] = useState("quotes"); // "quotes" | "reflection"
   const [currentQuote, setCurrentQuote] = useState(0);
   const [reflectionText, setReflectionText] = useState(null);
-  const [reflectionLoading, setReflectionLoading] = useState(false);
+  const reflectionFetchedRef = useRef(false);
 
   const quote = QUOTES[currentQuote];
   const currentResonance = journey[quote.key];
 
+  function getRatings(updatedKey, updatedVal) {
+    const base = {
+      quote1Resonance: journey.quote1Resonance,
+      quote2Resonance: journey.quote2Resonance,
+      quote3Resonance: journey.quote3Resonance,
+      quote4Resonance: journey.quote4Resonance,
+      quote5Resonance: journey.quote5Resonance,
+    };
+    if (updatedKey) base[updatedKey] = updatedVal;
+    return base;
+  }
+
+  function fireReflectionIfNeeded(ratings) {
+    if (reflectionFetchedRef.current) return;
+    const hasDeep = QUOTES.some((q) => ratings[q.key] === "Deeply");
+    if (!hasDeep) return;
+    reflectionFetchedRef.current = true;
+
+    const tensions = QUOTES
+      .map((q, i) => ({ tension: TENSIONS[i], rating: ratings[q.key] }))
+      .filter((t) => t.rating === "Deeply" || t.rating === "Somewhat");
+
+    fetchReflection("step1", { tensions }).then((text) => {
+      setReflectionText(text);
+    });
+  }
+
   function handleSelect(option) {
     update({ [quote.key]: option });
+    if (currentQuote === QUOTES.length - 1) {
+      fireReflectionIfNeeded(getRatings(quote.key, option));
+    }
   }
 
   function handleNext() {
@@ -57,24 +76,16 @@ export default function Step1Provocation() {
       setCurrentQuote(currentQuote + 1);
     } else {
       setPhase("reflection");
-      setReflectionLoading(true);
-      fetchReflection("step1", {
-        quote1Resonance: journey.quote1Resonance,
-        quote2Resonance: journey.quote2Resonance,
-        quote3Resonance: journey.quote3Resonance,
-        quote4Resonance: journey.quote4Resonance,
-        quote5Resonance: journey.quote5Resonance,
-      }).then((text) => {
-        setReflectionText(text);
-        setReflectionLoading(false);
-      });
     }
   }
 
-  const canAdvanceQuote = currentResonance !== "";
+  const canAdvanceQuote = currentResonance !== "" && currentResonance !== undefined;
   const canAdvanceReflection = journey.reflectionResonance !== "";
 
   if (phase === "reflection") {
+    const hasDeep = QUOTES.some((q) => journey[q.key] === "Deeply");
+    const displayText = hasDeep ? reflectionText : null;
+
     return (
       <Shell
         title="The Provocation"
@@ -94,14 +105,10 @@ export default function Step1Provocation() {
         <StepNav current={1} />
 
         <div style={styles.reflectionBox}>
-          {reflectionLoading ? (
-            <p style={styles.reflectionLoading}>Reading your responses...</p>
-          ) : reflectionText ? (
-            <p style={styles.reflectionText}>{reflectionText}</p>
+          {displayText ? (
+            <p style={styles.reflectionText}>{displayText}</p>
           ) : (
-            <p style={styles.reflectionFallback}>
-              Take a moment with what landed. What did you notice?
-            </p>
+            <p style={styles.reflectionFallback}>{FALLBACK}</p>
           )}
         </div>
 
@@ -203,7 +210,6 @@ const styles = {
     minHeight: "4rem",
   },
   reflectionText: { color: "var(--color-text)", lineHeight: "1.8", margin: 0, fontStyle: "italic", fontSize: "1rem" },
-  reflectionLoading: { color: "var(--color-text)", opacity: 0.45, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
   reflectionFallback: { color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
   back: {
     padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
