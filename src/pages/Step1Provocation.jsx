@@ -32,6 +32,7 @@ export default function Step1Provocation() {
   const [phase, setPhase] = useState("quotes"); // "quotes" | "reflection"
   const [currentQuote, setCurrentQuote] = useState(0);
   const [reflectionText, setReflectionText] = useState(null);
+  const [reflectionLoading, setReflectionLoading] = useState(false);
   const reflectionFetchedRef = useRef(false);
 
   const quote = QUOTES[currentQuote];
@@ -54,6 +55,7 @@ export default function Step1Provocation() {
     const hasDeep = QUOTES.some((q) => ratings[q.key] === "Deeply");
     if (!hasDeep) return;
     reflectionFetchedRef.current = true;
+    setReflectionLoading(true);
 
     const tensions = QUOTES
       .map((q, i) => ({ tension: TENSIONS[i], rating: ratings[q.key] }))
@@ -61,6 +63,7 @@ export default function Step1Provocation() {
 
     fetchReflection("step1", { tensions }).then((text) => {
       setReflectionText(text);
+      setReflectionLoading(false);
     });
   }
 
@@ -84,7 +87,6 @@ export default function Step1Provocation() {
 
   if (phase === "reflection") {
     const hasDeep = QUOTES.some((q) => journey[q.key] === "Deeply");
-    const displayText = hasDeep ? reflectionText : null;
 
     return (
       <Shell
@@ -105,8 +107,10 @@ export default function Step1Provocation() {
         <StepNav current={1} />
 
         <div style={styles.reflectionBox}>
-          {displayText ? (
-            <p style={styles.reflectionText}>{displayText}</p>
+          {hasDeep && reflectionLoading ? (
+            <p style={styles.reflectionLoading}>Reading your responses...</p>
+          ) : reflectionText ? (
+            <p style={styles.reflectionText}>{reflectionText}</p>
           ) : (
             <p style={styles.reflectionFallback}>{FALLBACK}</p>
           )}

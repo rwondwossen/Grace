@@ -98,7 +98,21 @@ export default function Step4CoherenceDiagnostic() {
   }
 
   if (phase === "reflection") {
-    const showFallback = !reflectionLoading && !reflections;
+    if (reflectionLoading) {
+      return (
+        <Shell
+          title="The Coherence Diagnostic"
+          footer={
+            <button onClick={() => { setDomainIndex(activeDomains.length - 1); setPhase("domain"); }} style={styles.back}>Back</button>
+          }
+        >
+          <StepNav current={4} rampT={RAMP_DOMAIN} />
+          <p style={styles.reflectionLoading}>Reading what you shared...</p>
+        </Shell>
+      );
+    }
+
+    const showFallback = !reflections;
 
     return (
       <Shell
@@ -123,9 +137,7 @@ export default function Step4CoherenceDiagnostic() {
                   ...(Array.isArray(diag.barriers) ? diag.barriers : []),
                   diag.barrierNotes,
                 ].filter(Boolean).join(", ");
-                const aiText = reflectionLoading
-                  ? null
-                  : (reflections && reflections[domain]) || null;
+                const aiText = (reflections && reflections[domain]) || null;
 
                 return (
                   <tr key={i} style={i < activeDomains.length - 1 ? styles.trBorder : {}}>
@@ -133,11 +145,7 @@ export default function Step4CoherenceDiagnostic() {
                     <td style={styles.tdContent}>
                       <p style={styles.gapText}>{diag.gap || "—"}</p>
                       {barriers ? <p style={styles.barriersText}>{barriers}</p> : null}
-                      {reflectionLoading ? (
-                        <p style={styles.reflectionLoading}>Reading what you shared...</p>
-                      ) : aiText ? (
-                        <p style={styles.aiReflection}>{aiText}</p>
-                      ) : null}
+                      {aiText ? <p style={styles.aiReflection}>{aiText}</p> : null}
                     </td>
                   </tr>
                 );
