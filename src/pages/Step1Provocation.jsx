@@ -38,40 +38,25 @@ export default function Step1Provocation() {
   const quote = QUOTES[currentQuote];
   const currentResonance = journey[quote.key];
 
-  function getRatings(updatedKey, updatedVal) {
-    const base = {
-      quote1Resonance: journey.quote1Resonance,
-      quote2Resonance: journey.quote2Resonance,
-      quote3Resonance: journey.quote3Resonance,
-      quote4Resonance: journey.quote4Resonance,
-      quote5Resonance: journey.quote5Resonance,
-    };
-    if (updatedKey) base[updatedKey] = updatedVal;
-    return base;
-  }
-
-  function fireReflectionIfNeeded(ratings) {
+  // Fire API once quote 5 is rated and at least one "Deeply" exists in settled state
+  useEffect(() => {
+    if (!journey.quote5Resonance) return;
     if (reflectionFetchedRef.current) return;
-    const hasDeep = QUOTES.some((q) => ratings[q.key] === "Deeply");
+    const hasDeep = QUOTES.some((q) => journey[q.key] === "Deeply");
     if (!hasDeep) return;
     reflectionFetchedRef.current = true;
     setReflectionLoading(true);
-
     const tensions = QUOTES
-      .map((q, i) => ({ tension: TENSIONS[i], rating: ratings[q.key] }))
+      .map((q, i) => ({ tension: TENSIONS[i], rating: journey[q.key] }))
       .filter((t) => t.rating === "Deeply" || t.rating === "Somewhat");
-
     fetchReflection("step1", { tensions }).then((text) => {
       setReflectionText(text);
       setReflectionLoading(false);
     });
-  }
+  }, [journey.quote1Resonance, journey.quote2Resonance, journey.quote3Resonance, journey.quote4Resonance, journey.quote5Resonance]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSelect(option) {
     update({ [quote.key]: option });
-    if (currentQuote === QUOTES.length - 1) {
-      fireReflectionIfNeeded(getRatings(quote.key, option));
-    }
   }
 
   function handleNext() {

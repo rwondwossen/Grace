@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useJourney } from "../context/JourneyContext";
 import { fetchReflection } from "../lib/reflect";
@@ -21,6 +21,18 @@ export default function Step4CoherenceDiagnostic() {
   const [domainIndex, setDomainIndex] = useState(0);
   const [reflections, setReflections] = useState(null); // object keyed by domain name
   const [reflectionLoading, setReflectionLoading] = useState(false);
+  const [continueReady, setContinueReady] = useState(false);
+  const continueTimerRef = useRef(null);
+
+  // Hard guard: Continue button on reflection screen is disabled for 1.5s after entering
+  // the phase to prevent phantom taps from the previous screen's Continue button
+  useEffect(() => {
+    if (phase === "reflection") {
+      setContinueReady(false);
+      continueTimerRef.current = setTimeout(() => setContinueReady(true), 1500);
+    }
+    return () => clearTimeout(continueTimerRef.current);
+  }, [phase]);
 
   const activeDomains = (journey.domains.length > 0 ? journey.domains : journey.allDomains).filter(
     (d) => d.trim() !== ""
@@ -120,7 +132,11 @@ export default function Step4CoherenceDiagnostic() {
         footer={
           <>
             <button onClick={() => { setDomainIndex(activeDomains.length - 1); setPhase("domain"); }} style={styles.back}>Back</button>
-            <button onClick={() => navigate("/step/5")} style={styles.next}>Continue</button>
+            <button
+              onClick={() => continueReady && navigate("/step/5")}
+              disabled={!continueReady}
+              style={{ ...styles.next, ...(!continueReady ? styles.nextDisabled : {}) }}
+            >Continue</button>
           </>
         }
       >
