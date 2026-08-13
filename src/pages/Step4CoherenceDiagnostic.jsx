@@ -4,22 +4,22 @@ import { useJourney } from "../context/JourneyContext";
 import { fetchReflection } from "../lib/reflect";
 import Shell from "../components/Shell";
 import StepNav from "../components/StepNav";
-import ReflectionResponse from "../components/ReflectionResponse";
 
 const BARRIER_OPTIONS = [
   "Awareness", "Energy", "Competing priorities", "Guilt", "Time", "Resources",
 ];
 
-// rampT for progress bar: step 4 intro = 0.2, step 4 domain screens = 0.4
 const RAMP_INTRO = 0.2;
 const RAMP_DOMAIN = 0.4;
+
+const FALLBACK_REFLECTION = "Take a look at what you've named. What's surfacing for you?";
 
 export default function Step4CoherenceDiagnostic() {
   const { journey, update } = useJourney();
   const navigate = useNavigate();
   const [phase, setPhase] = useState("intro"); // "intro" | "domain" | "reflection"
   const [domainIndex, setDomainIndex] = useState(0);
-  const [reflectionText, setReflectionText] = useState(null);
+  const [reflections, setReflections] = useState(null); // object keyed by domain name
   const [reflectionLoading, setReflectionLoading] = useState(false);
 
   const activeDomains = (journey.domains.length > 0 ? journey.domains : journey.allDomains).filter(
@@ -61,8 +61,8 @@ export default function Step4CoherenceDiagnostic() {
           const diag = journey.coherenceDiagnostic[i] || {};
           return { domain, gap: diag.gap, barriers: diag.barriers, barrierNotes: diag.barrierNotes };
         }),
-      }).then((text) => {
-        setReflectionText(text);
+      }).then((result) => {
+        setReflections(result);
         setReflectionLoading(false);
       });
     }
@@ -98,6 +98,8 @@ export default function Step4CoherenceDiagnostic() {
   }
 
   if (phase === "reflection") {
+    const showFallback = !reflectionLoading && !reflections;
+
     return (
       <Shell
         title="The Coherence Diagnostic"
@@ -109,25 +111,51 @@ export default function Step4CoherenceDiagnostic() {
         }
       >
         <StepNav current={4} rampT={RAMP_DOMAIN} />
-        <div style={styles.reflectionBox}>
-          {reflectionLoading ? (
-            <p style={styles.reflectionLoading}>Reading what you shared...</p>
-          ) : reflectionText ? (
-            <p style={styles.reflectionText}>{reflectionText}</p>
-          ) : (
-            <p style={styles.reflectionFallback}>
-              Read back what you named. What pattern do you see across all of it?
-            </p>
-          )}
-        </div>
 
-        <ReflectionResponse
-          resonance={journey.step4ReflectionResonance}
-          note={journey.step4ReflectionNote}
-          onResonance={(val) => update({ step4ReflectionResonance: val })}
-          onNote={(val) => update({ step4ReflectionNote: val })}
-          yesAck="That's worth holding onto."
-        />
+        {showFallback ? (
+          <p style={styles.fallback}>{FALLBACK_REFLECTION}</p>
+        ) : (
+          <table style={styles.table}>
+            <tbody>
+              {activeDomains.map((domain, i) => {
+                const diag = diagnostic[i] || {};
+                const barriers = [
+                  ...(Array.isArray(diag.barriers) ? diag.barriers : []),
+                  diag.barrierNotes,
+                ].filter(Boolean).join(", ");
+                const aiText = reflectionLoading
+                  ? null
+                  : (reflections && reflections[domain]) || null;
+
+                return (
+                  <tr key={i} style={i < activeDomains.length - 1 ? styles.trBorder : {}}>
+                    <td style={styles.tdDomain}>{domain}</td>
+                    <td style={styles.tdContent}>
+                      <p style={styles.gapText}>{diag.gap || "—"}</p>
+                      {barriers ? <p style={styles.barriersText}>{barriers}</p> : null}
+                      {reflectionLoading ? (
+                        <p style={styles.reflectionLoading}>Reading what you shared...</p>
+                      ) : aiText ? (
+                        <p style={styles.aiReflection}>{aiText}</p>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+
+        <div style={styles.surfacingBlock}>
+          <label style={styles.surfacingLabel}>What's surfacing for you?</label>
+          <textarea
+            style={styles.surfacingField}
+            placeholder="Anything you're noticing..."
+            value={journey.step4SurfacingNote}
+            onChange={(e) => update({ step4SurfacingNote: e.target.value })}
+            rows={3}
+          />
+        </div>
       </Shell>
     );
   }
@@ -194,7 +222,7 @@ export default function Step4CoherenceDiagnostic() {
       <label style={styles.notesLabel}>Anything else about what's getting in the way?</label>
       <textarea
         style={styles.notesField}
-        placeholder="Any texture the categories don't capture…"
+        placeholder="Any texture the categories don't capture..."
         value={current.barrierNotes}
         onChange={(e) => setField(domainIndex, "barrierNotes", e.target.value)}
         rows={2}
@@ -204,17 +232,6 @@ export default function Step4CoherenceDiagnostic() {
 }
 
 const styles = {
-  reflectionBox: {
-    background: "rgba(94,15,61,0.04)",
-    border: "1px solid rgba(94,15,61,0.18)",
-    borderRadius: "6px",
-    padding: "1.25rem 1.5rem",
-    marginBottom: "1.5rem",
-    minHeight: "4rem",
-  },
-  reflectionText: { color: "var(--color-text)", lineHeight: "1.8", margin: 0, fontStyle: "italic", fontSize: "1rem" },
-  reflectionLoading: { color: "var(--color-text)", opacity: 0.45, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
-  reflectionFallback: { color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", margin: 0, fontSize: "0.95rem" },
   pacingLine: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", marginBottom: "0.5rem", fontSize: "0.95rem", lineHeight: "1.5" },
   narrowingNudge: {
     background: "rgba(228,74,36,0.06)",
@@ -253,18 +270,27 @@ const styles = {
     border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
     boxSizing: "border-box", resize: "vertical", background: "#fff",
   },
-  placeholder: {
-    background: "rgba(44,35,29,0.04)",
-    border: "1.5px dashed rgba(44,35,29,0.3)",
-    borderRadius: "6px",
-    padding: "1.25rem",
-    marginBottom: "0.5rem",
+  fallback: { color: "var(--color-text)", opacity: 0.6, fontStyle: "italic", marginBottom: "1.5rem", fontSize: "0.95rem" },
+  table: { width: "100%", borderCollapse: "collapse", marginBottom: "1.5rem" },
+  trBorder: { borderBottom: "1px solid rgba(94,15,61,0.12)" },
+  tdDomain: {
+    fontFamily: "var(--font-serif)", fontWeight: 600, fontSize: "0.95rem",
+    color: "var(--color-accent-deep)", verticalAlign: "top",
+    paddingRight: "1rem", paddingTop: "1rem", paddingBottom: "1rem",
+    width: "28%", whiteSpace: "nowrap",
   },
-  placeholderLabel: {
-    display: "block", fontSize: "0.7rem", textTransform: "uppercase",
-    letterSpacing: "0.08em", color: "var(--color-text)", opacity: 0.5, marginBottom: "0.5rem",
+  tdContent: { verticalAlign: "top", paddingTop: "1rem", paddingBottom: "1rem" },
+  gapText: { margin: "0 0 0.3rem", fontSize: "0.92rem", color: "var(--color-text)", lineHeight: "1.6" },
+  barriersText: { margin: "0 0 0.5rem", fontSize: "0.82rem", color: "var(--color-text)", opacity: 0.55 },
+  reflectionLoading: { margin: 0, fontSize: "0.88rem", color: "var(--color-text)", opacity: 0.4, fontStyle: "italic" },
+  aiReflection: { margin: 0, fontSize: "0.9rem", color: "var(--color-plum)", fontStyle: "italic", lineHeight: "1.6" },
+  surfacingBlock: { marginTop: "0.5rem" },
+  surfacingLabel: { display: "block", fontWeight: 600, marginBottom: "0.4rem", color: "var(--color-text)" },
+  surfacingField: {
+    width: "100%", padding: "0.65rem", fontSize: "0.95rem",
+    border: "1.5px solid rgba(44,35,29,0.25)", borderRadius: "4px",
+    boxSizing: "border-box", resize: "vertical", background: "#fff",
   },
-  placeholderText: { color: "var(--color-text)", opacity: 0.7, fontStyle: "italic", margin: 0, lineHeight: "1.6" },
   back: {
     padding: "0.75rem 1.5rem", background: "var(--color-paper)", color: "var(--color-accent-deep)",
     border: "1.5px solid var(--color-accent)", borderRadius: "4px", cursor: "pointer", fontSize: "1rem",

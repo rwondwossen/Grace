@@ -7,6 +7,7 @@ export async function fetchReflection(type, data) {
     });
     if (!res.ok) return null;
     const json = await res.json();
+    if (json.structured !== undefined) return json.structured || null;
     return json.text || null;
   } catch {
     return null;

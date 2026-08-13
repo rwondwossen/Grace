@@ -25,12 +25,23 @@ function buildStep1Prompt(data) {
   return lines;
 }
 
+const STEP4_SYSTEM = `You are generating a short reflection for someone who has just described several life domains they want to focus on, what each currently looks like, and what's standing in the way for each. Write one short reflection per domain, one to two sentences, naming the gap honestly and specifically. Do not force a connection or pattern across domains that isn't actually there — barriers can be genuinely different from domain to domain. If the same barrier does show up in more than one domain, you can note that, but don't manufacture a pattern.
+
+Rules:
+- Do not say "your responses suggest" or "this indicates"
+- Do not diagnose or moralize about the barrier
+- Tone: honest pause, not verdict. A wise friend naming what's true, not a therapist or a coach.
+- Quote or closely echo the person's own words for what their domain currently looks like, don't replace their language with generic descriptions
+- Each reflection must be short enough to sit in a table row, one to two sentences maximum
+
+Return ONLY a JSON object where each key is the exact domain name and each value is the reflection string for that domain. No other text, no markdown, no explanation.`;
+
 function buildStep4Prompt(data) {
   const domainLines = (data.domains || []).map(d => {
     const barriers = [...(d.barriers || []), d.barrierNotes].filter(Boolean).join(", ") || "none named";
-    return `${d.domain}:\n  Reality right now: ${d.gap || "not described"}\n  What's in the way: ${barriers}`;
+    return `Domain: ${d.domain}\nWhat it looks like now: ${d.gap || "not described"}\nWhat's in the way: ${barriers}`;
   }).join("\n\n");
-  return `A person wants to feel "${data.northStarFeeling || "better"}". They just honestly described the current state of several areas of their life and what's standing in the way.\n\n${domainLines}\n\nFor each area, write 1-2 sentences reflecting back what they named — warm but grounded, no judgment, no unsolicited advice. Then one sentence on the overall pattern you notice across all areas. Keep the whole response under 150 words.`;
+  return domainLines;
 }
 
 function buildStep5Prompt(data) {
@@ -67,7 +78,7 @@ module.exports.handler = async function handler(event) {
 
   let prompt, systemPrompt;
   if (type === "step1") { prompt = buildStep1Prompt(data); systemPrompt = STEP1_SYSTEM; }
-  else if (type === "step4") prompt = buildStep4Prompt(data);
+  else if (type === "step4") { prompt = buildStep4Prompt(data); systemPrompt = STEP4_SYSTEM; }
   else if (type === "step5") prompt = buildStep5Prompt(data);
   else return { statusCode: 400, body: "Unknown reflection type" };
 
@@ -90,11 +101,23 @@ module.exports.handler = async function handler(event) {
     });
 
     const result = await response.json();
-    const text = result.content?.[0]?.text || null;
+    const raw = result.content?.[0]?.text || null;
+
+    let payload;
+    if (type === "step4") {
+      try {
+        payload = { structured: JSON.parse(raw) };
+      } catch {
+        payload = { structured: null };
+      }
+    } else {
+      payload = { text: raw };
+    }
+
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify(payload),
     };
   } catch (e) {
     return {

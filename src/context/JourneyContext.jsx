@@ -31,8 +31,7 @@ const DEFAULT_STATE = {
 
   // Step 4
   coherenceDiagnostic: [],
-  step4ReflectionResonance: "",
-  step4ReflectionNote: "",
+  step4SurfacingNote: "",
 
   // Step 5
   commitments: [],
